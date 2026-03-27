@@ -4,25 +4,30 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CSharpWallpaper.Controllers
 {
-    public class HomeController : Controller
+    [Route("[controller]")]
+    public class MainController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<MainController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public MainController(ILogger<MainController> logger)
         {
             _logger = logger;
         }
 
-        public IActionResult Index()
+        [HttpGet("")]
+        [Route("/")]
+        public IActionResult Main()
         {
             return View();
         }
 
+        [HttpGet("Privacy")]
         public IActionResult Privacy()
         {
             return View();
         }
 
+        [HttpGet("Error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

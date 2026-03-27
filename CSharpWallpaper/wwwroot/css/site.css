@@ -17,6 +17,25 @@ html {
   min-height: 100%;
 }
 
+
+.navbar {
+    background-color: #B5A892 !important;
+}
+
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-color: #D2D2D1;
+}
+
+footer {
+    background: #B5A892;
+}
+
+.footer-text {
+    color: #15160A;
+}
+
+
+text {
+    color: #15160A;
 }
