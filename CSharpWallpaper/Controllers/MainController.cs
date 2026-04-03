@@ -12,7 +12,6 @@ namespace CSharpWallpaper.Controllers
         private readonly ILogger<MainController> _logger;
         private readonly AppDbContext _context;
 
-        // Внедряем логгер (от Дани) и контекст БД (от Рената)
         public MainController(ILogger<MainController> logger, AppDbContext context)
         {
             _logger = logger;
@@ -23,53 +22,51 @@ namespace CSharpWallpaper.Controllers
         [Route("/")]
         public IActionResult Main()
         {
-            // Устанавливаем активную страницу для меню (нужно Дане)
             ViewBag.ActivePage = "Main";
 
-            // Получаем все записи из базы данных SQLite
-            var dbItems = _context.Wallpapers.ToList();
+            // 1. Получаем все обои из базы
+            var allItems = _context.Wallpapers.ToList();
 
-            // Формируем модель, которую ожидает View
+            // 2. Делаем случайную выборку для секции "Популярные"
+            // Используем Guid.NewGuid() для перемешивания списка
+            var randomWallpapers = allItems
+                .OrderBy(w => Guid.NewGuid())
+                .Take(8)
+                .ToList();
+
+            // 3. Собираем ViewModel
             var mainViewModel = new WallpaperCollectionViewModel
             {
-                // Секция 1: Простые карточки (берем все из базы)
-                SimpleCards = dbItems.Select(w => new SimpleImageCardViewModel
+                // Секция 1: 8 случайных карточек (смесь категорий)
+                SimpleCards = randomWallpapers.Select(w => new SimpleImageCardViewModel
                 {
                     ImageUrl = w.ImageUrl,
                     AltText = w.Title,
                     ClickUrl = "/Installing?imageUrl=" + w.ImageUrl
                 }).ToList(),
 
-                // Секция 2: Картинка + текст (Категории)
-                // Для примера берем те же данные, Даня потом стилизует
-                ImageTextCards = dbItems.Take(2).Select(w => new ImageTextCardViewModel
-                {
-                    ImageUrl = w.ImageUrl,
-                    AltText = w.Title,
-                    Title = w.Category ?? "Категория",
-                    Description = "Описание из базы",
-                    ClickUrl = "/Installing?imageUrl=" + w.ImageUrl
-                }).ToList(),
+                // Секция 2: Уникальные категории (папки)
+                // Берем по 1 фото из каждой папки, максимум 4 штуки
+                ImageTextCards = allItems
+                    .GroupBy(w => w.Category)
+                    .Select(g => g.First())
+                    .Take(4)
+                    .Select(w => new ImageTextCardViewModel
+                    {
+                        ImageUrl = w.ImageUrl,
+                        Title = w.Category ?? "Общие",
+                        Description = $"Смотреть коллекцию {w.Category}",
+                        ClickUrl = $"/Collections?category={w.Category}"
+                    }).ToList(),
 
-                // Секция 3: Картинка + иконка + текст (Страны)
                 IconCards = new List<ImageIconTextCardViewModel>()
-                // Сюда можно добавить статику или выборку последних записей
             };
 
             return View(mainViewModel);
         }
 
-        [HttpGet("Privacy")]
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
         [HttpGet("Error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        public IActionResult Error() => View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

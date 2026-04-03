@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using CSharpWallpaper.Data;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace CSharpWallpaper.Controllers
 {
@@ -10,62 +11,77 @@ namespace CSharpWallpaper.Controllers
     {
         private readonly AppDbContext _context;
 
-        // Внедряем контекст БД
         public CollectionsController(AppDbContext context)
         {
             _context = context;
         }
 
-        [HttpGet("")] // /collections
-        public IActionResult Collections()
+        // МЕТОД ВЫБОРА (JS AJAX)
+        // Позволяет выбрать обои без перезагрузки всей страницы
+        [HttpPost("Select")]
+        public IActionResult Select([FromBody] string imageUrl)
         {
-            // Устанавливаем активную страницу для навигации Дани
+            if (string.IsNullOrEmpty(imageUrl)) return BadRequest();
+
+            // Сохраняем выбор в Cookies на стороне сервера (через фоновый запрос)
+            CookieOptions option = new CookieOptions { Expires = DateTime.Now.AddDays(7) };
+            Response.Cookies.Append("LastSelectedWallpaper", imageUrl, option);
+
+            return Ok(new { success = true });
+        }
+
+        [HttpGet("")]
+        public IActionResult Collections(string category)
+        {
             ViewBag.ActivePage = "Collections";
 
-            // Получаем все обои из базы
+            // Читаем из куки текущий выбор, чтобы пометить карточку во View при загрузке
+            ViewBag.SelectedUrl = Request.Cookies["LastSelectedWallpaper"];
+
             var dbItems = _context.Wallpapers.ToList();
 
-            var collectModel = new WallpaperCollectionViewModel
+            // Если категория не выбрана — показываем список папок
+            if (string.IsNullOrEmpty(category))
             {
-                // Секция 1: Простые карточки (берем первые 5 для примера)
-                SimpleCards = dbItems.Take(5).Select(w => new SimpleImageCardViewModel
+                ViewBag.Title = "Все коллекции";
+                var categoriesModel = new WallpaperCollectionViewModel
                 {
-                    ImageUrl = w.ImageUrl,
-                    AltText = w.Title,
-                    ClickUrl = "/Installing?imageUrl=" + w.ImageUrl
-                }).ToList(),
+                    ImageTextCards = dbItems
+                        .GroupBy(w => w.Category)
+                        .Select(g => g.First())
+                        .Select(w => new ImageTextCardViewModel
+                        {
+                            ImageUrl = w.ImageUrl,
+                            Title = w.Category ?? "Общие",
+                            Description = $"Смотреть обои из папки {w.Category}",
+                            ClickUrl = $"/Collections?category={w.Category}"
+                        }).ToList(),
+                    SimpleCards = new List<SimpleImageCardViewModel>(),
+                    IconCards = new List<ImageIconTextCardViewModel>()
+                };
+                return View(categoriesModel);
+            }
 
-                // Секция 2: Категории (выводим по одной картинке из каждой категории)
-                ImageTextCards = dbItems
-                    .GroupBy(w => w.Category)
-                    .Select(g => g.First())
-                    .Select(w => new ImageTextCardViewModel
+            // Если категория выбрана — показываем обои этой категории
+            ViewBag.Title = $"Коллекция: {category}";
+            ViewBag.CurrentCategory = category;
+
+            var specificCollection = new WallpaperCollectionViewModel
+            {
+                SimpleCards = dbItems
+                    .Where(w => w.Category == category)
+                    .Select(w => new SimpleImageCardViewModel
                     {
                         ImageUrl = w.ImageUrl,
-                        AltText = w.Category,
-                        Title = w.Category ?? "Общие",
-                        Description = $"Коллекция обоев: {w.Category}",
-                        ClickUrl = "/Installing?imageUrl=" + w.ImageUrl
+                        AltText = w.Title,
+                        // Теперь ClickUrl не нужен для перехода, выбор идет через JS onclick
+                        ClickUrl = "#"
                     }).ToList(),
-
-                // Секция 3: Страны и регионы (IconCards)
-                // Оставляем пока статику или можно выводить специфические записи
-                IconCards = new List<ImageIconTextCardViewModel>
-                {
-                    new ImageIconTextCardViewModel
-                    {
-                        ImageUrl = dbItems.FirstOrDefault(w => w.Title.Contains("ireland"))?.ImageUrl ?? "/images/wallpapers/ireland.jpg",
-                        AltText = "Ирландия",
-                        IconUrl = "/images/flags/flagIreland.jpg",
-                        Title = "Ирландия",
-                        Description = "Пейзажи Ирландии из базы",
-                        ButtonText = "Смотреть",
-                        ButtonUrl = "/Installing?imageUrl=" + (dbItems.FirstOrDefault(w => w.Title.Contains("ireland"))?.ImageUrl ?? "/images/wallpapers/ireland.jpg")
-                    }
-                }
+                ImageTextCards = new List<ImageTextCardViewModel>(),
+                IconCards = new List<ImageIconTextCardViewModel>()
             };
 
-            return View(collectModel);
+            return View(specificCollection);
         }
     }
 }

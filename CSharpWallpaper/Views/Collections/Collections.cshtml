@@ -1,72 +1,97 @@
-﻿@{
-    ViewData["Title"] = "Коллекции";
+﻿@model CSharpWallpaper.Models.WallpaperCollectionViewModel
+@{
+    ViewData["Title"] = ViewBag.Title;
+    string selectedUrl = ViewBag.SelectedUrl;
 }
 
-<div class="text-center">
-    @* <h1 class="display-4">выбор категорий обоев</h1> *@
+<div class="text-center mb-4">
+    <h1 class="display-4">@ViewBag.Title</h1>
+    @if (Context.Request.Query.ContainsKey("category"))
+    {
+            <a href="/Collections" class="btn btn-outline-secondary">← Назад к коллекциям</a>
+    }
 </div>
 
-
-<!-- Только картинка -->
-<section>
-    <h2>Коллекция</h2>
-    <div class="cards-grid">
-        @foreach (var card in Model.SimpleCards)
-        {
-            <div class="card">
-                <a href="@card.ClickUrl" class="card-link">
-                    <div class="card-image-wrapper">
-                        <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
-                    </div>
-                </a>
+@* СЕКЦИЯ 1: Категории (переход по папкам остается обычным) *@
+@if (Model.ImageTextCards != null && Model.ImageTextCards.Any())
+{
+        <section>
+            <div class="cards-grid">
+            @foreach (var card in Model.ImageTextCards)
+            {
+                        <div class="card">
+                            <a href="@card.ClickUrl" style="text-decoration: none; color: inherit;">
+                                <div class="card-image-wrapper">
+                                    <img src="@card.ImageUrl" alt="@card.Title" class="card-image" />
+                                </div>
+                                <div class="card-content">
+                                    <h3 class="card-title">@card.Title</h3>
+                                    <p class="card-description">@card.Description</p>
+                                </div>
+                            </a>
+                        </div>
+            }
             </div>
-        }
-    </div>
-</section>
+        </section>
+}
 
-<!-- Картинка + текст -->
-<section>
-    <h2>Категории</h2>
-    <div class="cards-grid">
-        @foreach (var card in Model.ImageTextCards)
-        {
-            <div class="card">
-                <div class="card-image-wrapper">
-                    <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">@card.Title</h3>
-                    <p class="card-description">@card.Description</p>
-                </div>
+@* СЕКЦИЯ 2: Обои (выбор через JS без перезагрузки) *@
+@if (Model.SimpleCards != null && Model.SimpleCards.Any())
+{
+        <section>
+            <div class="cards-grid">
+            @foreach (var card in Model.SimpleCards)
+            {
+                bool isSelected = (card.ImageUrl == selectedUrl);
+
+                        <div class="card wallpaper-card @(isSelected ? "selected-wallpaper" : "")" 
+                             onclick="selectWallpaper(this, '@card.ImageUrl')"
+                             style="cursor: pointer;">
+                            <div class="card-image-wrapper">
+                                <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                            </div>
+                        </div>
+            }
             </div>
-        }
-    </div>
-</section>
+        </section>
+}
 
-<!-- Картинка + иконка + текст -->
-<section>
-    <h2>Страны и регионы</h2>
-    <div class="cards-grid">
-        @foreach (var card in Model.IconCards)
-        {
-            <div class="card">
-                <div class="card-image-wrapper">
-                    <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
-                </div>
-                <div class="card-content">
-                    @if (!string.IsNullOrEmpty(card.IconUrl))
-                    {
-                        <img src="@card.IconUrl" alt="flag" class="card-icon" />
-                    }
-                    <h3 class="card-title">@card.Title</h3>
-                    <p class="card-description">@card.Description</p>
-                    @if (!string.IsNullOrEmpty(card.ButtonText))
-                    {
-                        <a href="@card.ButtonUrl" class="card-button">@card.ButtonText</a>
-                    }
-                </div>
-            </div>
-        }
-    </div>
-</section>
+<style>
+    .selected-wallpaper {
+        border: 4px solid #007bff !important;
+        transform: scale(1.02);
+        box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
+        transition: all 0.2s ease-in-out;
+    }
 
+    .card {
+        border: 4px solid transparent;
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+
+<script>
+    async function selectWallpaper(element, url) {
+        // 1. Убираем рамку у всех и вешаем на текущую
+        document.querySelectorAll('.wallpaper-card').forEach(c => c.classList.remove('selected-wallpaper'));
+        element.classList.add('selected-wallpaper');
+
+        // 2. Отправляем запрос на сервер в фоновом режиме
+        try {
+            await fetch('/Collections/Select', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(url)
+            });
+            console.log("Выбор сохранен в Cookies:", url);
+        } catch (err) {
+            console.error("Ошибка сохранения:", err);
+        }
+    }
+</script>

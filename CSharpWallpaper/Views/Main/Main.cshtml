@@ -3,114 +3,65 @@
     ViewData["Title"] = "Главная страница";
 }
 
-<!-- Секция 1: Популярные обои -->
 <section>
-    <h2>Популярные обои</h2>
-    <div class="cards-grid"> <!-- Класс Дани для сетки (4 в ряд) -->
-        @{
-            int simpleCounter = 0;
-            var firstSimple = Model.SimpleCards.FirstOrDefault();
-        }
-
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Популярные обои</h2>
+        <a href="/Collections" class="btn btn-sm btn-outline-primary">Смотреть все</a>
+    </div>
+    <div class="cards-grid">
         @foreach (var card in Model.SimpleCards)
         {
-                <div class="card">
-                    <a href="/Installing?imageUrl=@card.ImageUrl" class="card-link">
-                        <div class="card-image-wrapper">
-                            <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
-                        </div>
-                    </a>
+                <div class="card wallpaper-card" onclick="selectWallpaper(this, '@card.ImageUrl')">
+                    <div class="card-image-wrapper">
+                        <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                    </div>
                 </div>
-            simpleCounter++;
-        }
-
-        <!-- Дозаполнение от Дани: если в базе мало обоев, копируем первую карточку до 10 штук -->
-        @if (firstSimple != null)
-        {
-            for (int i = simpleCounter; i < 10; i++)
-            {
-                        <div class="card">
-                            <a href="/Installing?imageUrl=@firstSimple.ImageUrl" class="card-link">
-                                <div class="card-image-wrapper">
-                                    <img src="@firstSimple.ImageUrl" alt="copy" class="card-image" style="opacity: 0.8;" />
-                                </div>
-                            </a>
-                        </div>
-            }
         }
     </div>
 </section>
 
-<!-- Секция 2: Категории -->
-<section>
+<section class="mt-5">
     <h2>Категории</h2>
     <div class="cards-grid">
-        @{
-            int catCounter = 0;
-            var firstCat = Model.ImageTextCards.FirstOrDefault();
-        }
-
         @foreach (var card in Model.ImageTextCards)
         {
                 <div class="card">
-                    <a href="/Installing?imageUrl=@card.ImageUrl" style="text-decoration: none; color: inherit;">
+                    <a href="@card.ClickUrl" class="card-link-wrapper">
                         <div class="card-image-wrapper">
-                            <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                            <img src="@card.ImageUrl" alt="@card.Title" class="card-image" />
                         </div>
-                        <div class="card-content">
+                        <div class="card-content text-center">
                             <h3 class="card-title">@card.Title</h3>
                             <p class="card-description">@card.Description</p>
                         </div>
                     </a>
                 </div>
-            catCounter++;
-        }
-
-        @if (firstCat != null)
-        {
-            for (int i = catCounter; i < 10; i++)
-            {
-                        <div class="card">
-                            <a href="/Installing?imageUrl=@firstCat.ImageUrl" style="text-decoration: none; color: inherit;">
-                                <div class="card-image-wrapper">
-                                    <img src="@firstCat.ImageUrl" alt="copy" class="card-image" style="opacity: 0.8;" />
-                                </div>
-                                <div class="card-content">
-                                    <h3 class="card-title">@firstCat.Title</h3>
-                                    <p class="card-description">@firstCat.Description</p>
-                                </div>
-                            </a>
-                        </div>
-            }
         }
     </div>
 </section>
 
-<!-- Секция 3: Страны и регионы -->
-<section>
-    <h2>Страны и регионы</h2>
-    <div class="cards-grid">
-        @foreach (var card in Model.IconCards)
-        {
-                <div class="card">
-                    <div class="card-image-wrapper">
-                        <a href="/Installing?imageUrl=@card.ImageUrl">
-                            <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
-                        </a>
-                    </div>
-                    <div class="card-content">
-                    @if (!string.IsNullOrEmpty(card.IconUrl))
-                    {
-                                <img src="@card.IconUrl" alt="flag" class="card-icon" />
-                    }
-                        <h3 class="card-title">@card.Title</h3>
-                        <p class="card-description">@card.Description</p>
-                    @if (!string.IsNullOrEmpty(card.ButtonText))
-                    {
-                                <a href="/Installing?imageUrl=@card.ImageUrl" class="card-button">@card.ButtonText</a>
-                    }
-                    </div>
-                </div>
-        }
-    </div>
-</section>
+<style>
+    .wallpaper-card { cursor: pointer; transition: all 0.2s; border: 4px solid transparent; }
+    /* Стиль выделения выбранной карточки */
+    .selected-wallpaper { 
+        border-color: #007bff !important; 
+        transform: scale(1.03); 
+        box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+    }
+    .card-link-wrapper { display: block; text-decoration: none; color: inherit; }
+</style>
+
+<script>
+    async function selectWallpaper(element, url) {
+        // Визуально выделяем карточку
+        document.querySelectorAll('.wallpaper-card').forEach(c => c.classList.remove('selected-wallpaper'));
+        element.classList.add('selected-wallpaper');
+
+        // Отправляем выбор на сервер (в куки)
+        await fetch('/Installing/Select', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(url)
+        });
+    }
+</script>
