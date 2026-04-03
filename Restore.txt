@@ -1,2 +1,8 @@
 cd "C:\Path"
 dotnet restore
+
+git fetch origin
+git checkout debug
+git add -A
+git commit -m "My changes"
+git push origin debug

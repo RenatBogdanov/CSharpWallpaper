@@ -3,6 +3,70 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Выбор категории обоев</h1>
-    <p><a>Красивые обои</a></p>
+    @* <h1 class="display-4">выбор категорий обоев</h1> *@
 </div>
+
+
+<!-- Только картинка -->
+<section>
+    <h2>Коллекция</h2>
+    <div class="cards-grid">
+        @foreach (var card in Model.SimpleCards)
+        {
+            <div class="card">
+                <a href="@card.ClickUrl" class="card-link">
+                    <div class="card-image-wrapper">
+                        <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Картинка + текст -->
+<section>
+    <h2>Категории</h2>
+    <div class="cards-grid">
+        @foreach (var card in Model.ImageTextCards)
+        {
+            <div class="card">
+                <div class="card-image-wrapper">
+                    <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">@card.Title</h3>
+                    <p class="card-description">@card.Description</p>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Картинка + иконка + текст -->
+<section>
+    <h2>Страны и регионы</h2>
+    <div class="cards-grid">
+        @foreach (var card in Model.IconCards)
+        {
+            <div class="card">
+                <div class="card-image-wrapper">
+                    <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                </div>
+                <div class="card-content">
+                    @if (!string.IsNullOrEmpty(card.IconUrl))
+                    {
+                        <img src="@card.IconUrl" alt="flag" class="card-icon" />
+                    }
+                    <h3 class="card-title">@card.Title</h3>
+                    <p class="card-description">@card.Description</p>
+                    @if (!string.IsNullOrEmpty(card.ButtonText))
+                    {
+                        <a href="@card.ButtonUrl" class="card-button">@card.ButtonText</a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
