@@ -8,33 +8,36 @@
     <div class="cards-grid">
         @foreach (var card in Model.SimpleCards)
         {
-            <div class="card">
-                <a href="@card.ClickUrl" class="card-link">
-                    <div class="card-image-wrapper">
-                        <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
-                    </div>
-                </a>
-            </div>
+                <div class="card">
+                    <!-- Заменил card.ClickUrl на переход в контроллер установки -->
+                    <a href="/Installing?imageUrl=@card.ImageUrl" class="card-link">
+                        <div class="card-image-wrapper">
+                            <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                        </div>
+                    </a>
+                </div>
         }
     </div>
 </section>
 
-
-<!-- Картинка + текст (Допилить переход по ссылке этому блоку)-->
+<!-- Картинка + текст -->
 <section>
     <h2>Категории</h2>
     <div class="cards-grid">
         @foreach (var card in Model.ImageTextCards)
         {
-            <div class="card">
-                <div class="card-image-wrapper">
-                    <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                <div class="card">
+                    <!-- Обернул всё содержимое в ссылку для перехода -->
+                    <a href="/Installing?imageUrl=@card.ImageUrl" style="text-decoration: none; color: inherit;">
+                        <div class="card-image-wrapper">
+                            <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">@card.Title</h3>
+                            <p class="card-description">@card.Description</p>
+                        </div>
+                    </a>
                 </div>
-                <div class="card-content">
-                    <h3 class="card-title">@card.Title</h3>
-                    <p class="card-description">@card.Description</p>
-                </div>
-            </div>
         }
     </div>
 </section>
@@ -45,23 +48,27 @@
     <div class="cards-grid">
         @foreach (var card in Model.IconCards)
         {
-            <div class="card">
-                <div class="card-image-wrapper">
-                    <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
-                </div>
-                <div class="card-content">
+                <div class="card">
+                    <div class="card-image-wrapper">
+                        <!-- Клик по самой картинке теперь тоже ведет на установку -->
+                        <a href="/Installing?imageUrl=@card.ImageUrl">
+                            <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                        </a>
+                    </div>
+                    <div class="card-content">
                     @if (!string.IsNullOrEmpty(card.IconUrl))
                     {
-                        <img src="@card.IconUrl" alt="flag" class="card-icon" />
+                                <img src="@card.IconUrl" alt="flag" class="card-icon" />
                     }
-                    <h3 class="card-title">@card.Title</h3>
-                    <p class="card-description">@card.Description</p>
+                        <h3 class="card-title">@card.Title</h3>
+                        <p class="card-description">@card.Description</p>
                     @if (!string.IsNullOrEmpty(card.ButtonText))
                     {
-                        <a href="@card.ButtonUrl" class="card-button">@card.ButtonText</a>
+                                <!-- Кнопка "Установить" (или что там в тексте) теперь ведет на контроллер -->
+                                <a href="/Installing?imageUrl=@card.ImageUrl" class="card-button">@card.ButtonText</a>
                     }
+                    </div>
                 </div>
-            </div>
         }
     </div>
 </section>

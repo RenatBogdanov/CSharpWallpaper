@@ -1,101 +1,43 @@
-using System.Diagnostics;
-using CSharpWallpaper.Models;
 using Microsoft.AspNetCore.Mvc;
+using CSharpWallpaper.Models;
+using CSharpWallpaper.Data; // ДОБАВИТЬ ЭТО
+using System.Linq;
 
 namespace CSharpWallpaper.Controllers
 {
     [Route("[controller]")]
     public class MainController : Controller
     {
-        private readonly ILogger<MainController> _logger;
+        private readonly AppDbContext _context;
 
-        public MainController(ILogger<MainController> logger)
+        // Внедряем контекст в конструктор
+        public MainController(AppDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
         [HttpGet("")]
         [Route("/")]
         public IActionResult Main()
         {
-            var mainViewModel = new WallpaperCollectionViewModel
-            {
-                // Вариант 1: Простые карточки
-                SimpleCards = new List<SimpleImageCardViewModel>
-            {
-                new SimpleImageCardViewModel
-                {
-                    ImageUrl = "/images/wallpapers/japan.jpg",
-                    ClickUrl = "/wallpapers/1"
-                },
-                new SimpleImageCardViewModel
-                {
-                    ImageUrl = "/images/wallpapers/japan.jpg",
-                    ClickUrl = "/wallpapers/2"
-                }
-            },
-                // TODO: Добавить переход по ссылке этому блоку
-                // Вариант 2: Картинка + текст
-                ImageTextCards = new List<ImageTextCardViewModel>
-            {
-                new ImageTextCardViewModel
-                {
-                    ImageUrl = "/images/wallpapers/japan.jpg",
-                    AltText = "Природа",
-                    Title = "Природа",
-                    Description = "Красивые пейзажи и природа",
-                    ClickUrl = "/wallpapers/1"
-                },
-                new ImageTextCardViewModel
-                {
-                    ImageUrl = "/images/wallpapers/japan.jpg",
-                    AltText = "Техника",
-                    Title = "Техника",
-                    Description = "Машины, самолеты, корабли",
-                    ClickUrl = "/wallpapers/2"
-                }
-            },
+            // Берем всё из базы
+            var dbItems = _context.Wallpapers.ToList();
 
-                // Вариант 3: Картинка + иконка + текст (как Ирландия)
-                IconCards = new List<ImageIconTextCardViewModel>
+            var viewModel = new WallpaperCollectionViewModel
             {
-                new ImageIconTextCardViewModel
+                // Заполняем список Дани данными из БД
+                SimpleCards = dbItems.Select(w => new SimpleImageCardViewModel
                 {
-                    ImageUrl = "/images/wallpapers/ireland.jpg",
-                    AltText = "Ирландия",
-                    IconUrl = "/images/flags/flagIreland.jpg", // или "/icons/ireland.svg"
-                    Title = "Ирландия",
-                    Description = "Красивые пейзажи Ирландии",
-                    ButtonText = "Смотреть коллекцию",
-                    ButtonUrl = "/collections/ireland"
-                },
-                new ImageIconTextCardViewModel
-                {
-                    ImageUrl = "/images/wallpapers/scotland.jpg",
-                    AltText = "Шотландия",
-                    IconUrl = "/images/flags/flagScotland.png",
-                    Title = "Шотландия",
-                    Description = "Горы и озера Шотландии",
-                    ButtonText = "Смотреть коллекцию",
-                    ButtonUrl = "/collections/scotland"
-                }
-            }
+                    ImageUrl = w.ImageUrl,
+                    AltText = w.Title
+                }).ToList(),
+
+                // Оставляем пустые списки или заполняем их также
+                ImageTextCards = new List<ImageTextCardViewModel>(),
+                IconCards = new List<ImageIconTextCardViewModel>()
             };
 
-            return View(mainViewModel);
-        }
-
-        [HttpGet("Privacy")]
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [HttpGet("Error")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(viewModel);
         }
     }
 }
