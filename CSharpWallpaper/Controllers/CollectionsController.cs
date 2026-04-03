@@ -1,76 +1,68 @@
 ﻿using CSharpWallpaper.Models;
 using Microsoft.AspNetCore.Mvc;
+using CSharpWallpaper.Data;
+using System.Linq;
 
 namespace CSharpWallpaper.Controllers
 {
     [Route("[controller]")]
     public class CollectionsController : Controller
     {
+        private readonly AppDbContext _context;
+
+        // Внедряем контекст БД
+        public CollectionsController(AppDbContext context)
+        {
+            _context = context;
+        }
+
         [HttpGet("")] // /collections
         public IActionResult Collections()
         {
+            // Устанавливаем активную страницу для навигации Дани
+            ViewBag.ActivePage = "Collections";
+
+            // Получаем все обои из базы
+            var dbItems = _context.Wallpapers.ToList();
+
             var collectModel = new WallpaperCollectionViewModel
             {
-                // Вариант 1: Простые карточки
-                SimpleCards = new List<SimpleImageCardViewModel>
-            {
-                new SimpleImageCardViewModel
+                // Секция 1: Простые карточки (берем первые 5 для примера)
+                SimpleCards = dbItems.Take(5).Select(w => new SimpleImageCardViewModel
                 {
-                    ImageUrl = "/images/wallpapers/ireland.jpg",
-                    ClickUrl = "/wallpapers/1"
-                },
-                new SimpleImageCardViewModel
-                {
-                    ImageUrl = "/images/wallpapers/ireland.jpg",
-                    ClickUrl = "/wallpapers/2"
-                }
-            },
+                    ImageUrl = w.ImageUrl,
+                    AltText = w.Title,
+                    ClickUrl = "/Installing?imageUrl=" + w.ImageUrl
+                }).ToList(),
 
-                // Вариант 2: Картинка + текст
-                ImageTextCards = new List<ImageTextCardViewModel>
-            {
-                new ImageTextCardViewModel
-                {
-                    ImageUrl = "/images/wallpapers/ireland.jpg",
-                    AltText = "Природа",
-                    Title = "Природа",
-                    Description = "Красивые пейзажи и природа",
-                    ClickUrl = "/wallpapers/1"
-                },
-                new ImageTextCardViewModel
-                {
-                    ImageUrl = "/images/wallpapers/ireland.jpg",
-                    AltText = "Техника",
-                    Title = "Техника",
-                    Description = "Машины, самолеты, корабли",
-                    ClickUrl = "/wallpapers/1"
-                }
-            },
+                // Секция 2: Категории (выводим по одной картинке из каждой категории)
+                ImageTextCards = dbItems
+                    .GroupBy(w => w.Category)
+                    .Select(g => g.First())
+                    .Select(w => new ImageTextCardViewModel
+                    {
+                        ImageUrl = w.ImageUrl,
+                        AltText = w.Category,
+                        Title = w.Category ?? "Общие",
+                        Description = $"Коллекция обоев: {w.Category}",
+                        ClickUrl = "/Installing?imageUrl=" + w.ImageUrl
+                    }).ToList(),
 
-                // Вариант 3: Картинка + иконка + текст (как Ирландия)
+                // Секция 3: Страны и регионы (IconCards)
+                // Оставляем пока статику или можно выводить специфические записи
                 IconCards = new List<ImageIconTextCardViewModel>
-            {
-                new ImageIconTextCardViewModel
                 {
-                    ImageUrl = "/images/wallpapers/ireland.jpg",
-                    AltText = "Ирландия",
-                    IconUrl = "/images/flags/flagIreland.jpg", // или "/icons/ireland.svg"
-                    Title = "Ирландия",
-                    Description = "Красивые пейзажи Ирландии",
-                    ButtonText = "Смотреть коллекцию",
-                    ButtonUrl = "/collections/ireland"
-                },
-                new ImageIconTextCardViewModel
-                {
-                    ImageUrl = "/images/wallpapers/scotland.jpg",
-                    AltText = "Шотландия",
-                    IconUrl = "/images/flags/flagScotland.png",
-                    Title = "Шотландия",
-                    Description = "Горы и озера Шотландии",
-                    ButtonText = "Смотреть коллекцию",
-                    ButtonUrl = "/collections/scotland"
+                    new ImageIconTextCardViewModel
+                    {
+                        ImageUrl = dbItems.FirstOrDefault(w => w.Title.Contains("ireland"))?.ImageUrl ?? "/images/wallpapers/ireland.jpg",
+                        AltText = "Ирландия",
+                        IconUrl = "/images/flags/flagIreland.jpg",
+                        Title = "Ирландия",
+                        Description = "Пейзажи Ирландии из базы",
+                        ButtonText = "Смотреть",
+                        ButtonUrl = "/Installing?imageUrl=" + (dbItems.FirstOrDefault(w => w.Title.Contains("ireland"))?.ImageUrl ?? "/images/wallpapers/ireland.jpg")
+                    }
                 }
-            }
             };
 
             return View(collectModel);

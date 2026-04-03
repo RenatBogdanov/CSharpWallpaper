@@ -1,33 +1,58 @@
-﻿@{
+﻿@model CSharpWallpaper.Models.WallpaperCollectionViewModel
+@{
     ViewData["Title"] = "Главная страница";
 }
 
-<!-- Только картинка -->
+<!-- Секция 1: Популярные обои -->
 <section>
     <h2>Популярные обои</h2>
-    <div class="cards-grid">
+    <div class="cards-grid"> <!-- Класс Дани для сетки (4 в ряд) -->
+        @{
+            int simpleCounter = 0;
+            var firstSimple = Model.SimpleCards.FirstOrDefault();
+        }
+
         @foreach (var card in Model.SimpleCards)
         {
                 <div class="card">
-                    <!-- Заменил card.ClickUrl на переход в контроллер установки -->
                     <a href="/Installing?imageUrl=@card.ImageUrl" class="card-link">
                         <div class="card-image-wrapper">
                             <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
                         </div>
                     </a>
                 </div>
+            simpleCounter++;
+        }
+
+        <!-- Дозаполнение от Дани: если в базе мало обоев, копируем первую карточку до 10 штук -->
+        @if (firstSimple != null)
+        {
+            for (int i = simpleCounter; i < 10; i++)
+            {
+                        <div class="card">
+                            <a href="/Installing?imageUrl=@firstSimple.ImageUrl" class="card-link">
+                                <div class="card-image-wrapper">
+                                    <img src="@firstSimple.ImageUrl" alt="copy" class="card-image" style="opacity: 0.8;" />
+                                </div>
+                            </a>
+                        </div>
+            }
         }
     </div>
 </section>
 
-<!-- Картинка + текст -->
+<!-- Секция 2: Категории -->
 <section>
     <h2>Категории</h2>
     <div class="cards-grid">
+        @{
+            int catCounter = 0;
+            var firstCat = Model.ImageTextCards.FirstOrDefault();
+        }
+
         @foreach (var card in Model.ImageTextCards)
         {
                 <div class="card">
-                    <!-- Обернул всё содержимое в ссылку для перехода -->
                     <a href="/Installing?imageUrl=@card.ImageUrl" style="text-decoration: none; color: inherit;">
                         <div class="card-image-wrapper">
                             <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
@@ -38,11 +63,30 @@
                         </div>
                     </a>
                 </div>
+            catCounter++;
+        }
+
+        @if (firstCat != null)
+        {
+            for (int i = catCounter; i < 10; i++)
+            {
+                        <div class="card">
+                            <a href="/Installing?imageUrl=@firstCat.ImageUrl" style="text-decoration: none; color: inherit;">
+                                <div class="card-image-wrapper">
+                                    <img src="@firstCat.ImageUrl" alt="copy" class="card-image" style="opacity: 0.8;" />
+                                </div>
+                                <div class="card-content">
+                                    <h3 class="card-title">@firstCat.Title</h3>
+                                    <p class="card-description">@firstCat.Description</p>
+                                </div>
+                            </a>
+                        </div>
+            }
         }
     </div>
 </section>
 
-<!-- Картинка + иконка + текст -->
+<!-- Секция 3: Страны и регионы -->
 <section>
     <h2>Страны и регионы</h2>
     <div class="cards-grid">
@@ -50,7 +94,6 @@
         {
                 <div class="card">
                     <div class="card-image-wrapper">
-                        <!-- Клик по самой картинке теперь тоже ведет на установку -->
                         <a href="/Installing?imageUrl=@card.ImageUrl">
                             <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
                         </a>
@@ -64,7 +107,6 @@
                         <p class="card-description">@card.Description</p>
                     @if (!string.IsNullOrEmpty(card.ButtonText))
                     {
-                                <!-- Кнопка "Установить" (или что там в тексте) теперь ведет на контроллер -->
                                 <a href="/Installing?imageUrl=@card.ImageUrl" class="card-button">@card.ButtonText</a>
                     }
                     </div>

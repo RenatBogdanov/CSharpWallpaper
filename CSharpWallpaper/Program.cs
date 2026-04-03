@@ -10,6 +10,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=wallpapers.db"));
 
+builder.Services.AddScoped<CSharpWallpaper.Services.WallpaperService>();
+
 
 var app = builder.Build();
 

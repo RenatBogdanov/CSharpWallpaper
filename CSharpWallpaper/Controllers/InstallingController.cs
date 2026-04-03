@@ -3,7 +3,7 @@ using CSharpWallpaper.Services;
 using Microsoft.Win32;
 using System.IO;
 using CSharpWallpaper.Data;
-using CSharpWallpaper.Models; // Замени на твой namespace, где лежит модель Wallpaper
+using CSharpWallpaper.Models;
 
 namespace CSharpWallpaper.Controllers
 {
@@ -12,7 +12,6 @@ namespace CSharpWallpaper.Controllers
         private readonly WallpaperService _wallpaperService = new WallpaperService();
         private readonly AppDbContext _context;
 
-        // Внедряем контекст БД через конструктор
         public InstallingController(AppDbContext context)
         {
             _context = context;
@@ -21,7 +20,12 @@ namespace CSharpWallpaper.Controllers
         [HttpGet("Installing")]
         public IActionResult Installing(string imageUrl)
         {
+            // Для Дани (подсветка меню)
+            ViewBag.ActivePage = "Installing";
+
             ViewBag.ImageUrl = imageUrl;
+
+            // Получаем путь к текущим обоям через сервис
             var currentPath = _wallpaperService.GetCurrentWallpaperPath();
             ViewBag.CurrentWallpaperPath = currentPath;
 
@@ -31,8 +35,9 @@ namespace CSharpWallpaper.Controllers
         [HttpPost("Installing/Set")]
         public IActionResult SetWallpaper(string imageUrl)
         {
-            if (string.IsNullOrEmpty(imageUrl)) return BadRequest();
+            if (string.IsNullOrEmpty(imageUrl)) return BadRequest("URL не указан");
 
+            // Превращаем относительный путь (/images/...) в полный физический путь на диске
             string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imageUrl.TrimStart('/'));
 
             if (System.IO.File.Exists(fullPath))
@@ -41,14 +46,16 @@ namespace CSharpWallpaper.Controllers
                 return Ok(new { success = true });
             }
 
-            return NotFound("Файл не найден");
+            return NotFound($"Файл не найден по пути: {fullPath}");
         }
 
         [HttpGet("Installing/GetCurrentWallpaperImage")]
         public IActionResult GetCurrentWallpaperImage()
         {
+            // Пробуем взять путь из реестра
             string wallpaperPath = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Desktop", "WallPaper", null);
 
+            // Если там пусто или файл перемещен, берем из системного кэша Windows
             if (string.IsNullOrEmpty(wallpaperPath) || !System.IO.File.Exists(wallpaperPath))
             {
                 wallpaperPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -64,16 +71,14 @@ namespace CSharpWallpaper.Controllers
             return NotFound();
         }
 
-        // МЕТОД ДЛЯ ЗАПОЛНЕНИЯ БД ИЗ ПАПКИ
         [HttpGet("Installing/FillDb")]
         public IActionResult FillDb()
         {
-            // Путь к папке с обоями в wwwroot
             string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "wallpapers");
 
             if (!Directory.Exists(folderPath))
             {
-                return Content($"Папка не найдена по пути: {folderPath}");
+                return Content($"Папка не найдена: {folderPath}");
             }
 
             var files = Directory.GetFiles(folderPath);
@@ -82,11 +87,10 @@ namespace CSharpWallpaper.Controllers
             foreach (var filePath in files)
             {
                 var fileName = Path.GetFileName(filePath);
-                // Проверяем только картинки (jpg, png, jpeg)
                 var ext = Path.GetExtension(fileName).ToLower();
+
                 if (ext == ".jpg" || ext == ".jpeg" || ext == ".png")
                 {
-                    // Проверяем, нет ли уже такой картинки в базе
                     if (!_context.Wallpapers.Any(w => w.Title == fileName))
                     {
                         _context.Wallpapers.Add(new Wallpaper
@@ -101,7 +105,7 @@ namespace CSharpWallpaper.Controllers
             }
 
             _context.SaveChanges();
-            return Content($"Готово! Добавлено новых записей: {addedCount}");
+            return Content($"База синхронизирована! Добавлено новых обоев: {addedCount}");
         }
     }
 }
