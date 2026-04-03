@@ -6,11 +6,15 @@
     @* <h1 class="display-4">выбор категорий обоев</h1> *@
 </div>
 
-
 <!-- Только картинка -->
 <section>
     <h2>Коллекция</h2>
     <div class="cards-grid">
+        @{
+            int cardCounter = 0;
+            var firstCard = Model.SimpleCards.Count > 0 ? Model.SimpleCards[0] : null;
+        }
+
         @foreach (var card in Model.SimpleCards)
         {
             <div class="card">
@@ -20,6 +24,22 @@
                     </div>
                 </a>
             </div>
+            cardCounter++;
+        }
+
+        <!-- Добавляем копии первой карточки до 10 штук -->
+        @if (firstCard != null)
+        {
+            for (int i = cardCounter + 1; i <= 10; i++)
+            {
+                <div class="card">
+                    <a href="@firstCard.ClickUrl" class="card-link">
+                        <div class="card-image-wrapper">
+                            <img src="@firstCard.ImageUrl" alt="@firstCard.AltText" class="card-image" />
+                        </div>
+                    </a>
+                </div>
+            }
         }
     </div>
 </section>
@@ -28,6 +48,11 @@
 <section>
     <h2>Категории</h2>
     <div class="cards-grid">
+        @{
+            int categoryCounter = 0;
+            var firstCategory = Model.ImageTextCards.Count > 0 ? Model.ImageTextCards[0] : null;
+        }
+
         @foreach (var card in Model.ImageTextCards)
         {
             <div class="card">
@@ -39,6 +64,24 @@
                     <p class="card-description">@card.Description</p>
                 </div>
             </div>
+            categoryCounter++;
+        }
+
+        <!-- Добавляем копии первой карточки до 10 штук -->
+        @if (firstCategory != null)
+        {
+            for (int i = categoryCounter + 1; i <= 10; i++)
+            {
+                <div class="card">
+                    <div class="card-image-wrapper">
+                        <img src="@firstCategory.ImageUrl" alt="@firstCategory.AltText" class="card-image" />
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">@firstCategory.Title</h3>
+                        <p class="card-description">@firstCategory.Description</p>
+                    </div>
+                </div>
+            }
         }
     </div>
 </section>
@@ -47,6 +90,11 @@
 <section>
     <h2>Страны и регионы</h2>
     <div class="cards-grid">
+        @{
+            int countryCounter = 0;
+            var firstCountry = Model.IconCards.Count > 0 ? Model.IconCards[0] : null;
+        }
+
         @foreach (var card in Model.IconCards)
         {
             <div class="card">
@@ -66,7 +114,32 @@
                     }
                 </div>
             </div>
+            countryCounter++;
+        }
+
+        <!-- Добавляем копии первой карточки до 10 штук -->
+        @if (firstCountry != null)
+        {
+            for (int i = countryCounter + 1; i <= 10; i++)
+            {
+                <div class="card">
+                    <div class="card-image-wrapper">
+                        <img src="@firstCountry.ImageUrl" alt="@firstCountry.AltText" class="card-image" />
+                    </div>
+                    <div class="card-content">
+                        @if (!string.IsNullOrEmpty(firstCountry.IconUrl))
+                        {
+                            <img src="@firstCountry.IconUrl" alt="flag" class="card-icon" />
+                        }
+                        <h3 class="card-title">@firstCountry.Title</h3>
+                        <p class="card-description">@firstCountry.Description</p>
+                        @if (!string.IsNullOrEmpty(firstCountry.ButtonText))
+                        {
+                            <a href="@firstCountry.ButtonUrl" class="card-button">@firstCountry.ButtonText</a>
+                        }
+                    </div>
+                </div>
+            }
         }
     </div>
 </section>
-

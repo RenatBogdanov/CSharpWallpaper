@@ -8,6 +8,7 @@ namespace CSharpWallpaper.Controllers
         [HttpGet("")]
         public IActionResult Installing()
         {
+            ViewBag.ActivePage = "Installing";
             return View();
         }
     }

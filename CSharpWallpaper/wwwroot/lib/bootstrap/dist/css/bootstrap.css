@@ -3991,15 +3991,14 @@ textarea.form-control-lg {
   white-space: nowrap;
 }
 .navbar-nav {
-  display: flex;
-  flex-direction: column;
-  padding-left: 0;
-  margin-bottom: 0;
-  list-style: none;
+  align-items: stretch !important;
+  height: 60px !important;
 }
 .navbar-nav .nav-link {
-  padding-right: 0;
-  padding-left: 0;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  height: 60px !important;
+  line-height: 60px !important;
 }
 .navbar-nav .dropdown-menu {
   position: static;

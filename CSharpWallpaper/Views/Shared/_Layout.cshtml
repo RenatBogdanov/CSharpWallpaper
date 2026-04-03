@@ -1,49 +1,71 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
+    <title>@ViewData["Title"] - Рулон Обоев</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CSharpWallpaper.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Main" asp-action="Main">Рулон Обоев</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3"
+             style="background-color: #B5A892 !important; min-height: 60px !important; padding: 0 !important;">
+            <div class="container-fluid" style="height: 60px;">
+                <a class="navbar-brand" asp-controller="Main" asp-action="Main"
+                   style="height: 60px !important; display: flex !important; align-items: center !important; padding: 0 15px !important; margin: 0 !important; color: #15160A !important;">
+                    Рулон Обоев
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Main" asp-action="Main">Главная</a>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between" style="height: 60px;">
+                    <ul class="navbar-nav flex-grow-1" style="height: 60px !important; display: flex !important; align-items: stretch !important; margin: 0 !important; padding: 0 !important;">
+
+                        <li class="nav-item" style="height: 60px !important; display: flex !important; margin: 0 !important;">
+                            <a class="nav-link @(ViewBag.ActivePage == "Main" ? "active-page" : "")"
+                               asp-controller="Main" asp-action="Main"
+                               style="height: 60px !important; display: flex !important; align-items: center !important; padding: 0 15px !important;">
+                                Главная
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Collections" asp-action="Collections">Коллекция обоев</a>
+
+                        <li class="nav-item" style="height: 60px !important; display: flex !important; margin: 0 !important;">
+                            <a class="nav-link @(ViewBag.ActivePage == "Collections" ? "active-page" : "")"
+                               asp-controller="Collections" asp-action="Collections"
+                               style="height: 60px !important; display: flex !important; align-items: center !important; padding: 0 15px !important;">
+                                Коллекция обоев
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Installing" asp-action="Installing">Установка обоев</a>
+
+                        <li class="nav-item" style="height: 60px !important; display: flex !important; margin: 0 !important;">
+                            <a class="nav-link @(ViewBag.ActivePage == "Installing" ? "active-page" : "")"
+                               asp-controller="Installing" asp-action="Installing"
+                               style="height: 60px !important; display: flex !important; align-items: center !important; padding: 0 15px !important;">
+                                Установка обоев
+                            </a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer">
-        <div class="container">
-            &copy; 2026 - Рулон Обоев - <a asp-area="" asp-controller="Main" asp-action="Privacy">Политика использования</a>
+    <footer class="border-top footer custom-footer">
+        <div class="container text-center">
+            <span class="footer-text">&copy; 2026 - Рулон Обоев</span> -
+            <a asp-controller="Main" asp-action="Privacy">Политика использования</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

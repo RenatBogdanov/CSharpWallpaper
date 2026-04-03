@@ -9,6 +9,7 @@ namespace CSharpWallpaper.Controllers
         [HttpGet("")] // /collections
         public IActionResult Collections()
         {
+            ViewBag.ActivePage = "Collections";
             var collectModel = new WallpaperCollectionViewModel
             {
                 // Вариант 1: Простые карточки

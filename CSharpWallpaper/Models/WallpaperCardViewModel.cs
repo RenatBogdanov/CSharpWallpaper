@@ -4,8 +4,8 @@
     public class SimpleImageCardViewModel
     {
         public string ImageUrl { get; set; }
-        public string AltText { get; set; }
-        public string ClickUrl { get; set; } // опционально
+        public string AltText { get; set; } // Мб убрать
+        public string ClickUrl { get; set; }
     }
 
     // Вариант 2: Картинка + текст
@@ -15,15 +15,15 @@
         public string AltText { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public string ClickUrl { get; set; } // опционально
+        public string ClickUrl { get; set; }
     }
 
-    // Вариант 3: Картинка + иконка + текст (как на фото)
+    // Вариант 3: Картинка + иконка + текст
     public class ImageIconTextCardViewModel
     {
         public string ImageUrl { get; set; }
         public string AltText { get; set; }
-        public string IconUrl { get; set; } // или IconCssClass для FontAwesome
+        public string IconUrl { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string ButtonText { get; set; }

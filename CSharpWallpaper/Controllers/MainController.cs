@@ -18,6 +18,7 @@ namespace CSharpWallpaper.Controllers
         [Route("/")]
         public IActionResult Main()
         {
+            ViewBag.ActivePage = "Main";
             var mainViewModel = new WallpaperCollectionViewModel
             {
                 // Вариант 1: Простые карточки
