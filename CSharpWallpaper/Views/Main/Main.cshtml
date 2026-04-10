@@ -9,18 +9,14 @@
         <a href="/Collections" class="btn btn-sm btn-outline-primary">Смотреть все</a>
     </div>
     <div class="cards-grid">
-        @{
-            int cardCounter = 0;
-            var firstCard = Model.SimpleCards.Count > 0 ? Model.SimpleCards[0] : null;
-        }
-
+        @* Убрали блок с cardCounter и firstCard, так как они не использовались *@
         @foreach (var card in Model.SimpleCards)
         {
-                <div class="card wallpaper-card" onclick="selectWallpaper(this, '@card.ImageUrl')">
-                    <div class="card-image-wrapper">
-                        <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                    <div class="card wallpaper-card" onclick="selectWallpaper(this, '@card.ImageUrl')">
+                        <div class="card-image-wrapper">
+                            <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                        </div>
                     </div>
-                </div>
         }
     </div>
 </section>
@@ -30,17 +26,17 @@
     <div class="cards-grid">
         @foreach (var card in Model.ImageTextCards)
         {
-                <div class="card">
-                    <a href="@card.ClickUrl" class="card-link-wrapper">
-                        <div class="card-image-wrapper">
-                            <img src="@card.ImageUrl" alt="@card.Title" class="card-image" />
-                        </div>
-                        <div class="card-content text-center">
-                            <h3 class="card-title">@card.Title</h3>
-                            <p class="card-description">@card.Description</p>
-                        </div>
-                    </a>
-                </div>
+                    <div class="card">
+                        <a href="@card.ClickUrl" class="card-link-wrapper">
+                            <div class="card-image-wrapper">
+                                <img src="@card.ImageUrl" alt="@card.Title" class="card-image" />
+                            </div>
+                            <div class="card-content text-center">
+                                <h3 class="card-title">@card.Title</h3>
+                                <p class="card-description">@card.Description</p>
+                            </div>
+                        </a>
+                    </div>
         }
     </div>
 </section>

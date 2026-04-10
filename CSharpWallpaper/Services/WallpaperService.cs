@@ -7,11 +7,45 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning; // Добавлено для атрибутов ОС
 
 namespace CSharpWallpaper.Services
 {
     public class WallpaperService(AppDbContext context, IHttpContextAccessor httpContextAccessor) : IWallpaperService
     {
+        // МЕТОД ДЛЯ ГЛАВНОЙ СТРАНИЦЫ
+        public WallpaperCollectionViewModel GetMainPageModel()
+        {
+            var allItems = context.Wallpapers.ToList();
+
+            return new WallpaperCollectionViewModel
+            {
+                // Секция 1: 8 случайных карточек для "Популярного"
+                SimpleCards = allItems
+                    .OrderBy(w => Guid.NewGuid())
+                    .Take(8)
+                    .Select(w => new SimpleImageCardViewModel
+                    {
+                        ImageUrl = w.ImageUrl,
+                        AltText = w.Title,
+                        ClickUrl = "/Installing?imageUrl=" + w.ImageUrl
+                    }).ToList(),
+
+                // Секция 2: Уникальные категории (макс 4)
+                ImageTextCards = allItems
+                    .GroupBy(w => w.Category)
+                    .Select(g => g.First())
+                    .Take(4)
+                    .Select(w => new ImageTextCardViewModel
+                    {
+                        ImageUrl = w.ImageUrl,
+                        Title = w.Category ?? "Общие",
+                        Description = $"Смотреть коллекцию {w.Category}",
+                        ClickUrl = $"/Collections?category={w.Category}"
+                    }).ToList()
+            };
+        }
+
         public WallpaperCollectionViewModel GetCategoriesModel()
         {
             var dbItems = context.Wallpapers.ToList();
@@ -56,23 +90,26 @@ namespace CSharpWallpaper.Services
             return httpContextAccessor.HttpContext?.Request.Cookies["LastSelectedWallpaper"] ?? "";
         }
 
+        // Исправлено: добавлены атрибуты и безопасное приведение типов
+        [SupportedOSPlatform("windows")]
         public string GetCurrentWallpaperPath()
         {
-            return (string)Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Desktop", "WallPaper", null) ?? "";
+            // Используем 'as string' и оператор объединения с null, чтобы избежать CS8600
+            return Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Desktop", "WallPaper", null) as string ?? "";
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
 
+        // Исправлено: добавлен атрибут платформы
+        [SupportedOSPlatform("windows")]
         public void SetWallpaper(string fullPath)
         {
-            // Установка обоев в Windows (классический WinAPI)
             const int SPI_SETDESKWALLPAPER = 20;
             const int SPIF_UPDATEINIFILE = 0x01;
             const int SPIF_SENDWININICHANGE = 0x02;
 
             SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, fullPath, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
         }
-
     }
 }
