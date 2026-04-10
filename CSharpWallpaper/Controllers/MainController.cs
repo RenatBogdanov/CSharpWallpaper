@@ -1,4 +1,4 @@
-using System.Diagnostics;
+п»їusing System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using CSharpWallpaper.Models;
 using CSharpWallpaper.Data;
@@ -25,20 +25,20 @@ namespace CSharpWallpaper.Controllers
         {
             ViewBag.ActivePage = "Main";
 
-            // 1. Получаем все обои из базы
+            // 1. РџРѕР»СѓС‡Р°РµРј РІСЃРµ РѕР±РѕРё РёР· Р±Р°Р·С‹
             var allItems = _context.Wallpapers.ToList();
 
-            // 2. Делаем случайную выборку для секции "Популярные"
-            // Используем Guid.NewGuid() для перемешивания списка
+            // 2. Р”РµР»Р°РµРј СЃР»СѓС‡Р°Р№РЅСѓСЋ РІС‹Р±РѕСЂРєСѓ РґР»СЏ СЃРµРєС†РёРё "РџРѕРїСѓР»СЏСЂРЅС‹Рµ"
+            // РСЃРїРѕР»СЊР·СѓРµРј Guid.NewGuid() РґР»СЏ РїРµСЂРµРјРµС€РёРІР°РЅРёСЏ СЃРїРёСЃРєР°
             var randomWallpapers = allItems
                 .OrderBy(w => Guid.NewGuid())
                 .Take(8)
                 .ToList();
 
-            // 3. Собираем ViewModel
+            // 3. РЎРѕР±РёСЂР°РµРј ViewModel
             var mainViewModel = new WallpaperCollectionViewModel
             {
-                // Секция 1: 8 случайных карточек (смесь категорий)
+                // РЎРµРєС†РёСЏ 1: 8 СЃР»СѓС‡Р°Р№РЅС‹С… РєР°СЂС‚РѕС‡РµРє (СЃРјРµСЃСЊ РєР°С‚РµРіРѕСЂРёР№)
                 SimpleCards = randomWallpapers.Select(w => new SimpleImageCardViewModel
                 {
                     ImageUrl = w.ImageUrl,
@@ -46,8 +46,8 @@ namespace CSharpWallpaper.Controllers
                     ClickUrl = "/Installing?imageUrl=" + w.ImageUrl
                 }).ToList(),
 
-                // Секция 2: Уникальные категории (папки)
-                // Берем по 1 фото из каждой папки, максимум 4 штуки
+                // РЎРµРєС†РёСЏ 2: РЈРЅРёРєР°Р»СЊРЅС‹Рµ РєР°С‚РµРіРѕСЂРёРё (РїР°РїРєРё)
+                // Р‘РµСЂРµРј РїРѕ 1 С„РѕС‚Рѕ РёР· РєР°Р¶РґРѕР№ РїР°РїРєРё, РјР°РєСЃРёРјСѓРј 4 С€С‚СѓРєРё
                 ImageTextCards = allItems
                     .GroupBy(w => w.Category)
                     .Select(g => g.First())
@@ -55,8 +55,8 @@ namespace CSharpWallpaper.Controllers
                     .Select(w => new ImageTextCardViewModel
                     {
                         ImageUrl = w.ImageUrl,
-                        Title = w.Category ?? "Общие",
-                        Description = $"Смотреть коллекцию {w.Category}",
+                        Title = w.Category ?? "РћР±С‰РёРµ",
+                        Description = $"РЎРјРѕС‚СЂРµС‚СЊ РєРѕР»Р»РµРєС†РёСЋ {w.Category}",
                         ClickUrl = $"/Collections?category={w.Category}"
                     }).ToList(),
 
@@ -66,8 +66,18 @@ namespace CSharpWallpaper.Controllers
             return View(mainViewModel);
         }
 
+<<<<<<< HEAD
+        [HttpGet("Privacy")]
+        public IActionResult Privacy()
+        {
+            ViewBag.ActivePage = "Main";
+            return View();
+        }
+
+=======
         //public IActionResult Privacy() { }
         
+>>>>>>> d41afb0b9b800c808fd3db0c41f090684450d2c0
         [HttpGet("Error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() => View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

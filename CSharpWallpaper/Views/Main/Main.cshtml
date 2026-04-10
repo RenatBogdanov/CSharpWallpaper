@@ -9,6 +9,11 @@
         <a href="/Collections" class="btn btn-sm btn-outline-primary">Смотреть все</a>
     </div>
     <div class="cards-grid">
+        @{
+            int cardCounter = 0;
+            var firstCard = Model.SimpleCards.Count > 0 ? Model.SimpleCards[0] : null;
+        }
+
         @foreach (var card in Model.SimpleCards)
         {
                 <div class="card wallpaper-card" onclick="selectWallpaper(this, '@card.ImageUrl')">
