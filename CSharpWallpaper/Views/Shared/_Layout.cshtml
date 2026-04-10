@@ -19,14 +19,25 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Main" asp-action="Main">Главная</a>
+                        <li class="nav-item" style="height: 60px !important; display: flex !important; margin: 0 !important;">
+                            <a class="nav-link @(ViewBag.ActivePage == "Main" ? "active-page" : "")" asp-controller="Main" asp-action="Main"
+                               style="height: 60px !important; display: flex !important; align-items: center !important; padding: 0 15px !important;">
+                                Главная
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Collections" asp-action="Collections">Коллекция обоев</a>
+                        <li class="nav-item" style="height: 60px !important; display: flex !important; margin: 0 !important;">
+                            <a class="nav-link @(ViewBag.ActivePage == "Collections" ? "active-page" : "")"
+                               asp-controller="Collections" asp-action="Collections"
+                               style="height: 60px !important; display: flex !important; align-items: center !important; padding: 0 15px !important;">
+                                Коллекция обоев
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Installing" asp-action="Installing">Установка обоев</a>
+                        <li class="nav-item" style="height: 60px !important; display: flex !important; margin: 0 !important;">
+                            <a class="nav-link @(ViewBag.ActivePage == "Installing" ? "active-page" : "")"
+                               asp-controller="Installing" asp-action="Installing"
+                               style="height: 60px !important; display: flex !important; align-items: center !important; padding: 0 15px !important;">
+                                Установка обоев
+                            </a>
                         </li>
                     </ul>
                 </div>
