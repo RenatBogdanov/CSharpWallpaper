@@ -13,17 +13,17 @@ namespace CSharpWallpaper.Services
 {
     public class WallpaperService(AppDbContext context, IHttpContextAccessor httpContextAccessor) : IWallpaperService
     {
-        // МЕТОД ДЛЯ ГЛАВНОЙ СТРАНИЦЫ
+        // Метод главной страницы
         public WallpaperCollectionViewModel GetMainPageModel()
         {
             var allItems = context.Wallpapers.ToList();
 
             return new WallpaperCollectionViewModel
             {
-                // Секция 1: 8 случайных карточек для "Популярного"
+                // Секция 1: 12 случайных карточек для "Популярного"
                 SimpleCards = allItems
                     .OrderBy(w => Guid.NewGuid())
-                    .Take(8)
+                    .Take(12)
                     .Select(w => new SimpleImageCardViewModel
                     {
                         ImageUrl = w.ImageUrl,
