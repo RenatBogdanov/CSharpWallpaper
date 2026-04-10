@@ -1,25 +1,32 @@
 using Microsoft.EntityFrameworkCore;
 using CSharpWallpaper.Data;
-
+using CSharpWallpaper.Interfaces; // Добавлено для доступа к интерфейсу
+using CSharpWallpaper.Services;  // Добавлено для доступа к реализации
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 1. Добавляем стандартные сервисы MVC
 builder.Services.AddControllersWithViews();
 
+// 2. Настраиваем базу данных SQLite
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=wallpapers.db"));
 
-builder.Services.AddScoped<CSharpWallpaper.Services.WallpaperService>();
+// 3. КРИТИЧЕСКИ ВАЖНО: Добавляем доступ к контексту HTTP. 
+// Без этого WallpaperService не сможет работать с Cookies и будет выдавать ошибку при запуске.
+builder.Services.AddHttpContextAccessor();
 
+// 4. Регистрируем сервис: связываем интерфейс с его реализацией.
+// Это позволит контроллерам запрашивать IWallpaperService в конструкторе.
+builder.Services.AddScoped<IWallpaperService, WallpaperService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Настройка конвейера обработки HTTP-запросов (Middleware)
 if (!app.Environment.IsDevelopment())
 {
+    // Обработка ошибок в рабочем режиме
     app.UseExceptionHandler("/Main/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -30,6 +37,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+// Настройка маршрута по умолчанию: Контроллер Main, Метод Main
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Main}/{action=Main}/{id?}");

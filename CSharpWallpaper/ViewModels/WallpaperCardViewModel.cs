@@ -1,4 +1,4 @@
-﻿namespace CSharpWallpaper.Models
+﻿namespace CSharpWallpaper.ViewModels
 {
     // Вариант 1: Только картинка
     public class SimpleImageCardViewModel
