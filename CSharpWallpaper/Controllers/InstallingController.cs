@@ -1,31 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using CSharpWallpaper.Services;
-using Microsoft.Win32;
-using System.IO;
+﻿using CSharpWallpaper.Interfaces;
 using CSharpWallpaper.Data;
 using CSharpWallpaper.Models;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Win32;
+using System.IO;
 
 namespace CSharpWallpaper.Controllers
 {
-    public class InstallingController : Controller
+    public class InstallingController(IWallpaperService wallpaperService, AppDbContext context) : Controller
     {
-        private readonly WallpaperService _wallpaperService = new WallpaperService();
-        private readonly AppDbContext _context;
-
-        public InstallingController(AppDbContext context)
-        {
-            _context = context;
-        }
-
         // Метод для "тихого" выбора картинки без перехода
         [HttpPost("Installing/Select")]
         public IActionResult Select([FromBody] string imageUrl)
         {
             if (string.IsNullOrEmpty(imageUrl)) return BadRequest();
 
-            CookieOptions option = new CookieOptions { Expires = DateTime.Now.AddDays(7) };
-            Response.Cookies.Append("LastSelectedWallpaper", imageUrl, option);
+            wallpaperService.SaveSelectedWallpaper(imageUrl);
             return Ok(new { success = true });
         }
 
@@ -34,46 +24,51 @@ namespace CSharpWallpaper.Controllers
         {
             ViewBag.ActivePage = "Installing";
 
-            // Если пришли по прямой ссылке с параметром — сохраняем
+            // Если пришли по прямой ссылке — сохраняем через сервис
             if (!string.IsNullOrEmpty(imageUrl))
             {
-                CookieOptions option = new CookieOptions { Expires = DateTime.Now.AddDays(7) };
-                Response.Cookies.Append("LastSelectedWallpaper", imageUrl, option);
+                wallpaperService.SaveSelectedWallpaper(imageUrl);
                 ViewBag.ImageUrl = imageUrl;
             }
             else
             {
-                // Иначе берем то, что "накликали" на главной
-                ViewBag.ImageUrl = Request.Cookies["LastSelectedWallpaper"];
+                // Берем текущий выбор из куки через сервис
+                ViewBag.ImageUrl = wallpaperService.GetSelectedWallpaper();
             }
 
-            ViewBag.CurrentWallpaperPath = _wallpaperService.GetCurrentWallpaperPath();
+            ViewBag.CurrentWallpaperPath = wallpaperService.GetCurrentWallpaperPath();
             return View();
         }
 
-        // Остальные методы (SetWallpaper, GetCurrentWallpaperImage, FillDb) остаются без изменений
         [HttpPost("Installing/Set")]
         public IActionResult SetWallpaper(string imageUrl)
         {
-            var finalUrl = imageUrl ?? Request.Cookies["LastSelectedWallpaper"];
+            var finalUrl = imageUrl ?? wallpaperService.GetSelectedWallpaper();
             if (string.IsNullOrEmpty(finalUrl)) return BadRequest("Картинка не выбрана");
+
+            // Формируем полный физический путь к файлу в wwwroot
             string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", finalUrl.TrimStart('/'));
+
             if (System.IO.File.Exists(fullPath))
             {
-                _wallpaperService.SetWallpaper(fullPath);
+                wallpaperService.SetWallpaper(fullPath);
                 return Ok(new { success = true });
             }
-            return NotFound("Файл не найден");
+            return NotFound("Файл не найден на сервере");
         }
 
         [HttpGet("Installing/GetCurrentWallpaperImage")]
         public IActionResult GetCurrentWallpaperImage()
         {
+            // Эта логика получения файла из Windows остается здесь или переносится в сервис
             string wallpaperPath = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Desktop", "WallPaper", null);
+
             if (string.IsNullOrEmpty(wallpaperPath) || !System.IO.File.Exists(wallpaperPath))
                 wallpaperPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft\Windows\Themes\TranscodedWallpaper");
 
-            if (System.IO.File.Exists(wallpaperPath)) return File(System.IO.File.OpenRead(wallpaperPath), "image/jpeg");
+            if (System.IO.File.Exists(wallpaperPath))
+                return File(System.IO.File.OpenRead(wallpaperPath), "image/jpeg");
+
             return NotFound();
         }
 
@@ -82,8 +77,10 @@ namespace CSharpWallpaper.Controllers
         {
             string rootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "wallpapers");
             if (!Directory.Exists(rootPath)) return Content("Папка не найдена");
+
             int addedCount = 0;
             var directories = Directory.GetDirectories(rootPath);
+
             foreach (var dir in directories)
             {
                 string categoryName = Path.GetFileName(dir);
@@ -91,14 +88,21 @@ namespace CSharpWallpaper.Controllers
                 {
                     var fileName = Path.GetFileName(filePath);
                     var webPath = $"/images/wallpapers/{categoryName}/{fileName}";
-                    if (!_context.Wallpapers.Any(w => w.ImageUrl == webPath))
+
+                    if (!context.Wallpapers.Any(w => w.ImageUrl == webPath))
                     {
-                        _context.Wallpapers.Add(new Wallpaper { Title = fileName, ImageUrl = webPath, Category = categoryName, IsPopular = addedCount < 5 });
+                        context.Wallpapers.Add(new Wallpaper
+                        {
+                            Title = fileName,
+                            ImageUrl = webPath,
+                            Category = categoryName,
+                            IsPopular = addedCount < 5
+                        });
                         addedCount++;
                     }
                 }
             }
-            _context.SaveChanges();
+            context.SaveChanges();
             return Content($"Добавлено: {addedCount}");
         }
     }

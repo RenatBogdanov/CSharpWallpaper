@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using CSharpWallpaper.Models;
 using CSharpWallpaper.Data;
 using System.Linq;
+using CSharpWallpaper.ViewModels;
 
 namespace CSharpWallpaper.Controllers
 {
@@ -65,6 +66,8 @@ namespace CSharpWallpaper.Controllers
             return View(mainViewModel);
         }
 
+        //public IActionResult Privacy() { }
+        
         [HttpGet("Error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() => View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
