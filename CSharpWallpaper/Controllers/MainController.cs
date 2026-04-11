@@ -7,7 +7,6 @@ using CSharpWallpaper.Models;
 namespace CSharpWallpaper.Controllers
 {
     [Route("[controller]")]
-    // Первичный конструктор: только то, что реально используется
     public class MainController(IWallpaperService wallpaperService) : Controller
     {
         [HttpGet("")]
@@ -16,7 +15,6 @@ namespace CSharpWallpaper.Controllers
         {
             ViewBag.ActivePage = "Main";
 
-            // Вся бизнес-логика и формирование модели делегированы сервису
             var model = wallpaperService.GetMainPageModel();
 
             return View(model);

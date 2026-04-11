@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using CSharpWallpaper.Models; // Убедись, что модель Wallpaper лежит в папке Models
+using CSharpWallpaper.Models;
 
 namespace CSharpWallpaper.Data
 {

@@ -5,8 +5,8 @@
         public int Id { get; set; }
         public string Title { get; set; }
         public string ImageUrl { get; set; }
-        public string Category { get; set; } // Это и будет наша коллекция (Природа, Машины и т.д.)
-        public bool IsPopular { get; set; }  // Для секции "Популярные"
+        public string Category { get; set; }
+        public bool IsPopular { get; set; }
         public DateTime AddedDate { get; set; } = DateTime.Now;
     }
 

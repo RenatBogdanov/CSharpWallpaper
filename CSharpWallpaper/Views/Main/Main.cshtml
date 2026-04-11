@@ -9,7 +9,6 @@
         <a href="/Collections" class="btn btn-sm btn-outline-primary">Смотреть все</a>
     </div>
     <div class="cards-grid">
-        @* Убрали блок с cardCounter и firstCard, так как они не использовались *@
         @foreach (var card in Model.SimpleCards)
         {
                     <div class="card wallpaper-card" onclick="selectWallpaper(this, '@card.ImageUrl')">

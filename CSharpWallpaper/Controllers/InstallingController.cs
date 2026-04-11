@@ -4,7 +4,7 @@ using CSharpWallpaper.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
 using System.IO;
-using System.Runtime.Versioning; // Добавлено для атрибута SupportedOSPlatform
+using System.Runtime.Versioning;
 
 namespace CSharpWallpaper.Controllers
 {
@@ -54,11 +54,10 @@ namespace CSharpWallpaper.Controllers
             return NotFound("Файл не найден на сервере");
         }
 
-        [SupportedOSPlatform("windows")] // Исправляет предупреждение CA1416
+        [SupportedOSPlatform("windows")]
         [HttpGet("Installing/GetCurrentWallpaperImage")]
         public IActionResult GetCurrentWallpaperImage()
         {
-            // Используем 'as string', чтобы убрать предупреждение CS8600 (nullable)
             string? wallpaperPath = Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Desktop", "WallPaper", null) as string;
 
             if (string.IsNullOrEmpty(wallpaperPath) || !System.IO.File.Exists(wallpaperPath))

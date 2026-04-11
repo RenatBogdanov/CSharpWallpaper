@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using CSharpWallpaper.Data;
-using CSharpWallpaper.Interfaces; // Добавлено для доступа к интерфейсу
-using CSharpWallpaper.Services;  // Добавлено для доступа к реализации
+using CSharpWallpaper.Interfaces;
+using CSharpWallpaper.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=wallpapers.db"));
 
-// 3. КРИТИЧЕСКИ ВАЖНО: Добавляем доступ к контексту HTTP. 
+// 3. Добавляем доступ к контексту HTTP. 
 // Без этого WallpaperService не сможет работать с Cookies и будет выдавать ошибку при запуске.
 builder.Services.AddHttpContextAccessor();
 

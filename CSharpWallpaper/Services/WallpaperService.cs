@@ -7,13 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning; // Добавлено для атрибутов ОС
+using System.Runtime.Versioning;
 
 namespace CSharpWallpaper.Services
 {
     public class WallpaperService(AppDbContext context, IHttpContextAccessor httpContextAccessor) : IWallpaperService
     {
-        // Метод главной страницы
         public WallpaperCollectionViewModel GetMainPageModel()
         {
             var allItems = context.Wallpapers.ToList();
@@ -90,18 +89,15 @@ namespace CSharpWallpaper.Services
             return httpContextAccessor.HttpContext?.Request.Cookies["LastSelectedWallpaper"] ?? "";
         }
 
-        // Исправлено: добавлены атрибуты и безопасное приведение типов
         [SupportedOSPlatform("windows")]
         public string GetCurrentWallpaperPath()
         {
-            // Используем 'as string' и оператор объединения с null, чтобы избежать CS8600
             return Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Desktop", "WallPaper", null) as string ?? "";
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
 
-        // Исправлено: добавлен атрибут платформы
         [SupportedOSPlatform("windows")]
         public void SetWallpaper(string fullPath)
         {
