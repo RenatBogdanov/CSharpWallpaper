@@ -2,79 +2,98 @@
 using CSharpWallpaper.Interfaces;
 using CSharpWallpaper.ViewModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Threading.Tasks;
 
 namespace CSharpWallpaper.Services
 {
-    public class WallpaperService(AppDbContext context, IHttpContextAccessor httpContextAccessor) : IWallpaperService
+    public class WallpaperService(
+        AppDbContext context,
+        IHttpContextAccessor httpContextAccessor,
+        IWebHostEnvironment env) : IWallpaperService
     {
-        public WallpaperCollectionViewModel GetMainPageModel()
+        public async Task<WallpaperCollectionViewModel> GetMainPageModelAsync()
         {
-            var allItems = context.Wallpapers.ToList();
+            // Секция 1: 12 случайных карточек. 
+            // EF.Functions.Random() заставляет SQLite сортировать случайно на уровне БД!
+            var randomCards = await context.Wallpapers
+                .OrderBy(w => EF.Functions.Random())
+                .Take(12)
+                .Select(w => new SimpleImageCardViewModel
+                {
+                    ImageUrl = w.ImageUrl,
+                    AltText = w.Title,
+                    ClickUrl = "/Installing?imageUrl=" + w.ImageUrl
+                })
+                .ToListAsync();
+
+            // Секция 2: Уникальные категории
+            // Получаем только уникальные имена категорий из БД, чтобы не грузить всю таблицу
+            var categories = await context.Wallpapers
+                .Select(w => w.Category)
+                .Distinct()
+                .Take(4)
+                .ToListAsync();
+
+            var imageTextCards = categories.Select(cat => new ImageTextCardViewModel
+            {
+                // Берем первую попавшуюся картинку для обложки категории
+                ImageUrl = context.Wallpapers.FirstOrDefault(w => w.Category == cat)?.ImageUrl,
+                Title = cat ?? "Общие",
+                Description = $"Смотреть коллекцию {cat}",
+                ClickUrl = $"/Collections?category={cat}"
+            }).ToList();
 
             return new WallpaperCollectionViewModel
             {
-                // Секция 1: 12 случайных карточек для "Популярного"
-                SimpleCards = allItems
-                    .OrderBy(w => Guid.NewGuid())
-                    .Take(12)
-                    .Select(w => new SimpleImageCardViewModel
-                    {
-                        ImageUrl = w.ImageUrl,
-                        AltText = w.Title,
-                        ClickUrl = "/Installing?imageUrl=" + w.ImageUrl
-                    }).ToList(),
-
-                // Секция 2: Уникальные категории (макс 4)
-                ImageTextCards = allItems
-                    .GroupBy(w => w.Category)
-                    .Select(g => g.First())
-                    .Take(4)
-                    .Select(w => new ImageTextCardViewModel
-                    {
-                        ImageUrl = w.ImageUrl,
-                        Title = w.Category ?? "Общие",
-                        Description = $"Смотреть коллекцию {w.Category}",
-                        ClickUrl = $"/Collections?category={w.Category}"
-                    }).ToList()
+                SimpleCards = randomCards,
+                ImageTextCards = imageTextCards
             };
         }
 
-        public WallpaperCollectionViewModel GetCategoriesModel()
+        public async Task<WallpaperCollectionViewModel> GetCategoriesModelAsync()
         {
-            var dbItems = context.Wallpapers.ToList();
+            var categories = await context.Wallpapers
+                .Select(w => w.Category)
+                .Distinct()
+                .ToListAsync();
+
+            var imageTextCards = categories.Select(cat => new ImageTextCardViewModel
+            {
+                ImageUrl = context.Wallpapers.FirstOrDefault(w => w.Category == cat)?.ImageUrl,
+                Title = cat ?? "Общие",
+                Description = $"Смотреть обои из папки {cat}",
+                ClickUrl = $"/Collections?category={cat}"
+            }).ToList();
+
             return new WallpaperCollectionViewModel
             {
-                ImageTextCards = dbItems
-                    .GroupBy(w => w.Category)
-                    .Select(g => g.First())
-                    .Select(w => new ImageTextCardViewModel
-                    {
-                        ImageUrl = w.ImageUrl,
-                        Title = w.Category ?? "Общие",
-                        Description = $"Смотреть обои из папки {w.Category}",
-                        ClickUrl = $"/Collections?category={w.Category}"
-                    }).ToList()
+                ImageTextCards = imageTextCards
             };
         }
 
-        public WallpaperCollectionViewModel GetCategoryItemsModel(string category)
+        public async Task<WallpaperCollectionViewModel> GetCategoryItemsModelAsync(string category)
         {
+            var cards = await context.Wallpapers
+                .Where(w => w.Category == category)
+                .Select(w => new SimpleImageCardViewModel
+                {
+                    ImageUrl = w.ImageUrl,
+                    AltText = w.Title,
+                    ClickUrl = "#"
+                })
+                .ToListAsync();
+
             return new WallpaperCollectionViewModel
             {
-                SimpleCards = context.Wallpapers
-                    .Where(w => w.Category == category)
-                    .Select(w => new SimpleImageCardViewModel
-                    {
-                        ImageUrl = w.ImageUrl,
-                        AltText = w.Title,
-                        ClickUrl = "#"
-                    }).ToList()
+                SimpleCards = cards
             };
         }
 
@@ -92,14 +111,39 @@ namespace CSharpWallpaper.Services
         [SupportedOSPlatform("windows")]
         public string GetCurrentWallpaperPath()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return "";
             return Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Desktop", "WallPaper", null) as string ?? "";
+        }
+
+        public bool SetWallpaper(string imageUrl)
+        {
+            var finalUrl = imageUrl ?? GetSelectedWallpaper();
+            if (string.IsNullOrEmpty(finalUrl)) return false;
+
+            // ИСПРАВЛЕНИЕ БАГА СО СЛЕШАМИ:
+            // 1. Заменяем все веб-слеши (/) на системные (в Windows это \)
+            // 2. Убираем первый слеш, чтобы Path.Combine не воспринял это как корень диска
+            string normalizedPath = finalUrl.Replace('/', Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
+
+            // 3. Формируем абсолютный путь к файлу через IWebHostEnvironment
+            string fullPath = Path.GetFullPath(Path.Combine(env.WebRootPath, normalizedPath));
+
+            if (File.Exists(fullPath))
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    SetWindowsWallpaper(fullPath);
+                    return true;
+                }
+            }
+            return false;
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
 
         [SupportedOSPlatform("windows")]
-        public void SetWallpaper(string fullPath)
+        private void SetWindowsWallpaper(string fullPath)
         {
             const int SPI_SETDESKWALLPAPER = 20;
             const int SPIF_UPDATEINIFILE = 0x01;

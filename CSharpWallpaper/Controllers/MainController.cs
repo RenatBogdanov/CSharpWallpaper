@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using CSharpWallpaper.ViewModels;
 using CSharpWallpaper.Interfaces;
+using System.Threading.Tasks;
 using CSharpWallpaper.Models;
 
 namespace CSharpWallpaper.Controllers
@@ -11,12 +12,10 @@ namespace CSharpWallpaper.Controllers
     {
         [HttpGet("")]
         [Route("/")]
-        public IActionResult Main()
+        public async Task<IActionResult> Main()
         {
             ViewBag.ActivePage = "Main";
-
-            var model = wallpaperService.GetMainPageModel();
-
+            var model = await wallpaperService.GetMainPageModelAsync();
             return View(model);
         }
 

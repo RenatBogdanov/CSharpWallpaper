@@ -1,5 +1,6 @@
 ﻿using CSharpWallpaper.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace CSharpWallpaper.Controllers
 {
@@ -10,13 +11,12 @@ namespace CSharpWallpaper.Controllers
         public IActionResult Select([FromBody] string imageUrl)
         {
             if (string.IsNullOrEmpty(imageUrl)) return BadRequest();
-
             wallpaperService.SaveSelectedWallpaper(imageUrl);
             return Ok(new { success = true });
         }
 
         [HttpGet("")]
-        public IActionResult Collections(string category)
+        public async Task<IActionResult> Collections(string category)
         {
             ViewBag.ActivePage = "Collections";
             ViewBag.SelectedUrl = wallpaperService.GetSelectedWallpaper();
@@ -24,14 +24,14 @@ namespace CSharpWallpaper.Controllers
             if (string.IsNullOrEmpty(category))
             {
                 ViewBag.Title = "Все коллекции";
-                var model = wallpaperService.GetCategoriesModel();
+                var model = await wallpaperService.GetCategoriesModelAsync();
                 return View(model);
             }
 
             ViewBag.Title = $"Коллекция: {category}";
             ViewBag.CurrentCategory = category;
 
-            var categoryModel = wallpaperService.GetCategoryItemsModel(category);
+            var categoryModel = await wallpaperService.GetCategoryItemsModelAsync(category);
             return View(categoryModel);
         }
     }

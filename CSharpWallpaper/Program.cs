@@ -22,6 +22,8 @@ builder.Services.AddHttpContextAccessor();
 // Это позволит контроллерам запрашивать IWallpaperService в конструкторе.
 builder.Services.AddScoped<IWallpaperService, WallpaperService>();
 
+builder.Services.AddScoped<IFileSyncService, FileSyncService>();
+
 var app = builder.Build();
 
 // Настройка конвейера обработки HTTP-запросов (Middleware)

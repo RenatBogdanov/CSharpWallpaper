@@ -1,15 +1,16 @@
 ﻿using CSharpWallpaper.ViewModels;
+using System.Threading.Tasks;
 
 namespace CSharpWallpaper.Interfaces
 {
     public interface IWallpaperService
     {
-        WallpaperCollectionViewModel GetMainPageModel();
-        WallpaperCollectionViewModel GetCategoriesModel();
-        WallpaperCollectionViewModel GetCategoryItemsModel(string category);
+        Task<WallpaperCollectionViewModel> GetMainPageModelAsync();
+        Task<WallpaperCollectionViewModel> GetCategoriesModelAsync();
+        Task<WallpaperCollectionViewModel> GetCategoryItemsModelAsync(string category);
         void SaveSelectedWallpaper(string imageUrl);
         string GetSelectedWallpaper();
         string GetCurrentWallpaperPath();
-        void SetWallpaper(string imageUrl);
+        bool SetWallpaper(string imageUrl);
     }
 }
