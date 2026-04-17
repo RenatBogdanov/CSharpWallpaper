@@ -9,8 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // 2. Настраиваем базу данных SQLite
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=wallpapers.db"));
+    options.UseSqlite(connectionString));
+
 
 // 3. Добавляем доступ к контексту HTTP. 
 // Без этого WallpaperService не сможет работать с Cookies и будет выдавать ошибку при запуске.
