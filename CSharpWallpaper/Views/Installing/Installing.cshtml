@@ -4,47 +4,56 @@
 }
 
 <div class="container text-center" style="margin-top: 50px;">
-    <div class="container text-center" style="margin-top: 50px;">
-        <div class="row">
-            <!-- Левая колонка -->
-            <div class="col-md-6">
-                <h3 class="installing-section-title">Сейчас на рабочем столе:</h3>
-                <div class="preview-container" style="border: 2px solid #ddd; border-radius: 12px; padding: 15px; background: #f9f9f9;">
-                    <div style="aspect-ratio: 16/9; overflow: hidden; border-radius: 8px; background: #eee; display: flex; align-items: center; justify-content: center;">
-                        <img src="/Installing/GetCurrentWallpaperImage"
-                             alt="Текущие обои"
-                             style="width: 100%; height: 100%; object-fit: cover;"
-                             onerror="this.src='https://placehold.co'" />
-                    </div>
-                    <p style="font-size: 0.75rem; color: #888; margin-top: 15px; word-break: break-all;">
-                        Путь в системе: <br /> <strong>@ViewBag.CurrentWallpaperPath</strong>
-                    </p>
+    <div class="row">
+        <!-- Левая колонка -->
+        <div class="col-md-6 mb-4">
+            <div class="preview-card" style="border: 3px solid #6F5B42;">
+                <div class="preview-image-wrapper">
+                    <img src="/Installing/GetCurrentWallpaperImage"
+                         alt="Текущие обои"
+                         onerror="this.src='https://placehold.co/600x400/B5A892/15160A?text=No+Image'" />
+                </div>
+                <div class="preview-card-content">
+                    <h4 class="preview-card-title">Текущие обои</h4>
+                    <p class="preview-card-text">Путь в системе:</p>
+                    <p class="preview-card-path">@ViewBag.CurrentWallpaperPath</p>
                 </div>
             </div>
+        </div>
 
-            <!-- Правая колонка -->
-            <div class="col-md-6">
-                <h3 class="installing-section-title">Будет установлено:</h3>
-                @if (ViewBag.ImageUrl != null)
-                {
-                    <div class="preview-container" style="border: 2px solid #007bff; border-radius: 12px; padding: 15px; background: #f0f7ff;">
-                        <div style="aspect-ratio: 16/9; overflow: hidden; border-radius: 8px; background: #eee;">
-                            <img src="@ViewBag.ImageUrl" id="wallpaperPreview" style="width: 100%; height: 100%; object-fit: cover;" />
-                        </div>
-                        <button id="setBtn" class="btn btn-primary btn-lg w-100" style="margin-top: 15px;" onclick="setWallpaper('@ViewBag.ImageUrl')">
+        <!-- Правая колонка -->
+        <div class="col-md-6 mb-4">
+            @if (ViewBag.ImageUrl != null)
+            {
+                <div class="preview-card" style="border: 3px solid #FFD700;">
+                    <div class="preview-image-wrapper">
+                        <img src="@ViewBag.ImageUrl"
+                             id="wallpaperPreview"
+                             alt="Новые обои" />
+                    </div>
+                    <div class="preview-card-content">
+                        <h4 class="preview-card-title">Выбранные обои</h4>
+                        <p class="preview-card-text">Готовы к установке на рабочий стол</p>
+                        <button id="setBtn" class="btn btn-primary btn-lg w-100" onclick="setWallpaper('@ViewBag.ImageUrl')">
                             Подтвердить замену
                         </button>
                     </div>
-                }
-                else
-                {
-                    <div class="alert alert-warning" style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
-                        Картинка не выбрана. Вернитесь на главную.
+                </div>
+            }
+            else
+            {
+                <div class="preview-placeholder">
+                    <div class="placeholder-content">
+                        <div class="placeholder-icon">🖼️</div>
+                        <p class="placeholder-text">Картинка не выбрана</p>
+                        <p class="placeholder-subtext">Вернитесь на главную страницу для выбора обоев</p>
                     </div>
-                }
-            </div>
+                </div>
+            }
         </div>
     </div>
+
+
 </div>
 
 <script>

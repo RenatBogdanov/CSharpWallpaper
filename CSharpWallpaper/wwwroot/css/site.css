@@ -61,19 +61,19 @@ text {
     color: #15160A; /*Черный*/
 }
 
-/* Сетка у "умным" ограничением */
+/* Сетка для главной */
 .cards-grid {
     display: grid;
     gap: 20px;
     margin: 30px 0;
     align-items: start;
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr;
 }
 
-/* По умолчанию — показываем только 4 */
-.cards-grid > .card:nth-child(n+5) {
-    display: none;
-}
+    /* По умолчанию — показываем только 4 */
+    .cards-grid > .card:nth-child(n+5) {
+        display: none;
+    }
 
 /* Пол-экрана (от 768px) — 2 колонки (итого 2x2 = 4 шт) */
 @media (min-width: 768px) {
@@ -88,14 +88,14 @@ text {
     .cards-grid {
         grid-template-columns: repeat(3, 1fr);
     }
-    /* Показываем элементы с 5 по 9 */
-    .cards-grid > .card:nth-child(n+5) {
-        display: flex;
-    }
-    /* Скрываем элементы с 10 и далее */
-    .cards-grid > .card:nth-child(n+10) {
-        display: none;
-    }
+        /* Показываем элементы с 5 по 9 */
+        .cards-grid > .card:nth-child(n+5) {
+            display: flex;
+        }
+        /* Скрываем элементы с 10 и далее */
+        .cards-grid > .card:nth-child(n+10) {
+            display: none;
+        }
 }
 
 /* Полный экран (от 1600px) — 4 колонки (максимум 12 шт) */
@@ -103,13 +103,43 @@ text {
     .cards-grid {
         grid-template-columns: repeat(4, 1fr);
     }
-    /* Показываем элементы с 10 по 12 */
-    .cards-grid > .card:nth-child(n+10) {
-        display: flex;
+        /* Показываем элементы с 10 по 12 */
+        .cards-grid > .card:nth-child(n+10) {
+            display: flex;
+        }
+        /* Скрываем элементы с 13 и далее */
+        .cards-grid > .card:nth-child(n+13) {
+            display: none;
+        }
+}
+
+/* === Сетка для колекций === */
+.collections-grid {
+    display: grid;
+    gap: 20px;
+    margin: 30px 0;
+    align-items: start;
+    grid-template-columns: 1fr;
+}
+
+/* Пол-экрана (от 768px) — 2 колонки */
+@media (min-width: 768px) {
+    .collections-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
-    /* Скрываем элементы с 13 и далее */
-    .cards-grid > .card:nth-child(n+13) {
-        display: none;
+}
+
+/* Средний экран (от 1200px) — 3 колонки */
+@media (min-width: 1200px) {
+    .collections-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Полный экран (от 1600px) — 4 колонки */
+@media (min-width: 1600px) {
+    .collections-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
@@ -279,15 +309,15 @@ text {
 
 /* Кнопка смотреть все */
 .btn-outline-primary {
-    color: #6F5B42 !important;           /* Коричневый текст */
-    border-color: #6F5B42 !important;    /* Коричневая рамка */
-    background-color: transparent !important;
+    background-color: #D2D2D1 !important; /* Белый фон */
+    color: #6F5B42 !important; /* Коричневый текст */
+    border-color: #6F5B42 !important; /* Коричневая рамка */
 }
 
 .btn-outline-primary:hover {
-    color: #FFFFFF !important;           /* Белый текст при наведении */
+    color: #D2D2D1 !important; /* Белый текст при наведении */
     background-color: #6F5B42 !important; /* Коричневый фон при наведении */
-    border-color: #6F5B42 !important;
+    border-color: #6F5B42 !important; /* Коричневая рамка */
 }
 
 .btn-outline-primary:focus,
@@ -308,39 +338,240 @@ text {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #6F5B42 !important;
 }
 
-/* Синхронизируем высоту колонок */
-@media (min-width: 768px) {
-    /* Заголовки одинаковой высоты */
-    .installing-section-title {
-        min-height: 60px; /* Фиксированная высота для заголовков */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 20px;
+/* Растягиваем row по высоте */
+.row {
+    display: flex;
+    align-items: stretch;
+}
+
+/* Колонки растягиваются */
+.col-md-6 {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Карточка превью */
+.preview-card {
+    background: #B5A892;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Обертка изображения */
+.preview-image-wrapper {
+    width: 100%;
+    height: 350px; /* Увеличили высоту */
+    overflow: hidden;
+    position: relative;
+    background: #D2D2D1;
+    flex-shrink: 0;
+}
+
+.preview-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.preview-card:hover .preview-image-wrapper img {
+    transform: scale(1.03);
+}
+
+/* Контент карточки */
+.preview-card-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.preview-card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #15160A;
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.preview-card-text {
+    font-size: 0.95rem;
+    color: #15160A;
+    margin: 0;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.preview-card-path {
+    font-size: 0.85rem;
+    color: #6F5B42;
+    margin-top: 8px;
+    opacity: 0.8;
+    word-break: break-all;
+    text-align: center;
+}
+
+/* Кнопка */
+.preview-card .btn {
+    margin-top: auto;
+}
+
+/* Заглушка для правой колонки */
+.preview-placeholder {
+    background: #B5A892;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 450px; /* Соответствует высоте карточки с картинкой */
+}
+
+.placeholder-content {
+    text-align: center;
+    padding: 30px;
+}
+
+.placeholder-icon {
+    font-size: 4rem;
+    color: #6F5B42;
+    margin-bottom: 15px;
+}
+
+.placeholder-text {
+    font-size: 1.1rem;
+    color: #15160A;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.placeholder-subtext {
+    font-size: 0.9rem;
+    color: #6F5B42;
+}
+
+/* Полный экран (>=1600px) */
+@media (min-width: 1600px) {
+    .preview-image-wrapper {
+        height: 350px;
     }
-    
-    /* Колонки */
-    .row > .col-md-6 {
-        display: flex;
-        flex-direction: column;
+
+    .preview-placeholder {
+        min-height: 470px;
     }
-    
-    /* Контейнеры превью */
-    .preview-container {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
+}
+
+/* Средний экран (1200px - 1599px) */
+@media (min-width: 1200px) and (max-width: 1599px) {
+    .preview-image-wrapper {
+        height: 280px;
     }
-    
-    /* Картинка не сжимается */
-    .preview-container > div:first-child {
-        flex-shrink: 0;
+
+    .preview-card-content {
+        padding: 18px;
     }
-    
-    /* Текст и кнопка прижимаются к низу */
-    .preview-container > p,
-    .preview-container > button,
-    .preview-container > .alert {
-        margin-top: auto;
+
+    .preview-card-title {
+        font-size: 1.25rem;
+        margin-bottom: 10px;
     }
+
+    .preview-placeholder {
+        min-height: 400px;
+    }
+}
+
+/* Половина экрана (768px - 1199px) */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .preview-image-wrapper {
+        height: 180px; /* Увеличили с 140px */
+    }
+
+    .preview-card-content {
+        padding: 15px;
+    }
+
+    .preview-card-title {
+        font-size: 1.15rem;
+        margin-bottom: 8px;
+    }
+
+    .preview-card-text {
+        font-size: 0.85rem;
+    }
+
+    .preview-card-path {
+        font-size: 0.75rem;
+    }
+
+    .preview-placeholder {
+        min-height: 340px;
+    }
+
+    .placeholder-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+    }
+
+    .placeholder-text {
+        font-size: 1rem;
+    }
+
+    .placeholder-subtext {
+        font-size: 0.85rem;
+    }
+}
+
+/* Мобильные (<768px) */
+@media (max-width: 767px) {
+    .preview-image-wrapper {
+        height: 200px;
+    }
+
+    .preview-placeholder {
+        min-height: 320px;
+    }
+}
+
+/* Кнопка Применить */
+.btn-primary {
+    color: #FFFFFF !important; /* Коричневый текст */
+    border-color: #B5A892 !important; /* Коричневая рамка */
+    background-color: #6F5B42 !important;
+}
+
+.btn-primary:hover {
+    color: #FFFFFF !important;           /* Белый текст при наведении */
+    background-color: #6F5B42 !important; /* Коричневый фон при наведении */
+    border-color: #6F5B42 !important;
+}
+
+.btn-primary:focus,
+.btn-primary:active {
+    color: #FFFFFF !important;
+    background-color: #6F5B42 !important;
+    border-color: #6F5B42 !important;
+    box-shadow: 0 0 0 0.25rem rgba(111, 91, 66, 0.5) !important; /* Тень в тон кнопки */
+}
+
+/* Убираем при клике мыши */
+.btn-primary:focus:not(:focus-visible) {
+    box-shadow: none !important;
+}
+
+/* Оставляем при навигации клавиатурой (Tab) */
+.btn-primary:focus-visible {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #6F5B42 !important;
 }

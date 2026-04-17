@@ -75,10 +75,30 @@ namespace CSharpWallpaper.Controllers
             string rootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "wallpapers");
             if (!Directory.Exists(rootPath)) return Content("Папка не найдена");
 
-            int addedCount = 0;
-            var directories = Directory.GetDirectories(rootPath);
+            // Собираем все актуальные пути с диска в HashSet (для быстрого поиска O(1))
+            var diskPaths = new HashSet<string>();
+            foreach (var dir in Directory.GetDirectories(rootPath))
+            {
+                string categoryName = Path.GetFileName(dir);
+                foreach (var filePath in Directory.GetFiles(dir))
+                {
+                    var fileName = Path.GetFileName(filePath);
+                    diskPaths.Add($"/images/wallpapers/{categoryName}/{fileName}");
+                }
+            }
 
-            foreach (var dir in directories)
+            // Удаляем из БД те записи, файлов которых больше нет на диске
+            var allDbWallpapers = context.Wallpapers.ToList();
+            var toDelete = allDbWallpapers.Where(w => !diskPaths.Contains(w.ImageUrl)).ToList();
+
+            if (toDelete.Any())
+            {
+                context.Wallpapers.RemoveRange(toDelete);
+            }
+
+            // Добавляем новые картинки, которых ещё нет в БД
+            int addedCount = 0;
+            foreach (var dir in Directory.GetDirectories(rootPath))
             {
                 string categoryName = Path.GetFileName(dir);
                 foreach (var filePath in Directory.GetFiles(dir))
@@ -86,6 +106,7 @@ namespace CSharpWallpaper.Controllers
                     var fileName = Path.GetFileName(filePath);
                     var webPath = $"/images/wallpapers/{categoryName}/{fileName}";
 
+                    // Если в БД такой записи нет добавляем
                     if (!context.Wallpapers.Any(w => w.ImageUrl == webPath))
                     {
                         context.Wallpapers.Add(new Wallpaper
@@ -99,8 +120,9 @@ namespace CSharpWallpaper.Controllers
                     }
                 }
             }
+
             context.SaveChanges();
-            return Content($"Добавлено: {addedCount}");
+            return Content($"✅ Синхронизация завершена!\nДобавлено: {addedCount}\n🗑 Удалено: {toDelete.Count}");
         }
     }
 }
