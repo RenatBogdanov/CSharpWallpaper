@@ -53,15 +53,23 @@
 
 <script>
     async function selectWallpaper(element, url) {
-        // Визуально выделяем карточку
+        // 1. Визуально выделяем карточку золотым цветом
         document.querySelectorAll('.wallpaper-card').forEach(c => c.classList.remove('selected-wallpaper'));
         element.classList.add('selected-wallpaper');
 
-        // Отправляем выбор на сервер (в куки)
-        await fetch('/Installing/Select', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(url)
-        });
+        // 2. Отправляем запрос на существующий метод в CollectionsController
+        try {
+            await fetch('/Collections/Select', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Важно для [FromBody]
+                },
+                body: JSON.stringify(url) // Передаем чистую строку, как и ждет бэкенд
+            });
+            console.log("Выбор обоев успешно сохранен в коллекции:", url);
+        } catch (error) {
+            console.error('Ошибка при сохранении выбора обоев:', error);
+        }
     }
 </script>
+
