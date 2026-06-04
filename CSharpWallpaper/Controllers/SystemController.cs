@@ -21,21 +21,33 @@ namespace CSharpWallpaper.Controllers
         {
             ViewBag.ActivePage = "Installing";
 
+            string selectedUrl = "";
+
             if (!string.IsNullOrEmpty(imageUrl))
             {
                 wallpaperService.SaveSelectedWallpaper(imageUrl);
-                ViewBag.ImageUrl = imageUrl;
+                selectedUrl = imageUrl;
             }
             else
             {
-                ViewBag.ImageUrl = wallpaperService.GetSelectedWallpaper();
+                selectedUrl = wallpaperService.GetSelectedWallpaper();
+            }
+
+            // НАДЕЖНАЯ ПРОВЕРКА: если путь пустой или не содержит расширение картинки
+            if (string.IsNullOrEmpty(selectedUrl) ||
+                (!selectedUrl.Contains(".jpg") && !selectedUrl.Contains(".png") && !selectedUrl.Contains(".jpeg")))
+            {
+                ViewBag.ImageUrl = "none";
+            }
+            else
+            {
+                ViewBag.ImageUrl = selectedUrl;
             }
 
             ViewBag.CurrentWallpaperPath = wallpaperService.GetCurrentWallpaperPath();
-
-            // Указываем путь к View явно, чтобы исключить любые ошибки поиска
             return View("Installing");
         }
+
 
         // Для остальных методов оставляем как было, 
         // они будут доступны по /Installing/Set, /Installing/FillDb и т.д.
