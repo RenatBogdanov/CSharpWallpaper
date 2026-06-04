@@ -5,6 +5,6 @@ namespace CSharpWallpaper.Interfaces
     public interface IFileSyncService
     {
         // Возвращает кортеж с количеством добавленных и удаленных обоев
-        Task<(int Added, int Deleted)> SyncWallpapersAsync();
+        Task<(int Added, int Deleted)> SyncWallpapers();
     }
 }

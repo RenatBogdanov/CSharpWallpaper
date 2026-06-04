@@ -12,7 +12,7 @@ namespace CSharpWallpaper.Services
 {
     public class FileSyncService(AppDbContext context, IWebHostEnvironment env) : IFileSyncService
     {
-        public async Task<(int Added, int Deleted)> SyncWallpapersAsync()
+        public async Task<(int Added, int Deleted)> SyncWallpapers()
         {
             // Используем IWebHostEnvironment для правильного пути к wwwroot
             string rootPath = Path.Combine(env.WebRootPath, "images", "wallpapers");

@@ -69,7 +69,7 @@ namespace CSharpWallpaper.Controllers
         [HttpGet("FillDb")]
         public async Task<IActionResult> FillDb()
         {
-            var result = await fileSyncService.SyncWallpapersAsync();
+            var result = await fileSyncService.SyncWallpapers();
             return Content($"✅ Синхронизация завершена!\nДобавлено: {result.Added}\n🗑 Удалено: {result.Deleted}");
         }
     }
