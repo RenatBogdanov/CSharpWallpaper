@@ -1,0 +1,75 @@
+﻿@model WallpaperCollectionViewModel
+@{
+    ViewData["Title"] = "Главная страница";
+}
+
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Популярные обои</h2>
+        <a href="/Collections" class="btn btn-sm btn-outline-primary">Смотреть все</a>
+    </div>
+    <div class="cards-grid">
+        @foreach (var card in Model.SimpleCards)
+        {
+                    <div class="card wallpaper-card" onclick="selectWallpaper(this, '@card.ImageUrl')">
+                        <div class="card-image-wrapper">
+                            <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                        </div>
+                    </div>
+        }
+    </div>
+</section>
+
+<section class="mt-5">
+    <h2>Категории</h2>
+    <div class="cards-grid">
+        @foreach (var card in Model.ImageTextCards)
+        {
+                    <div class="card">
+                        <a href="@card.ClickUrl" class="card-link-wrapper">
+                            <div class="card-image-wrapper">
+                                <img src="@card.ImageUrl" alt="@card.Title" class="card-image" />
+                            </div>
+                            <div class="card-content text-center">
+                                <h3 class="card-title">@card.Title</h3>
+                                <p class="card-description">@card.Description</p>
+                            </div>
+                        </a>
+                    </div>
+        }
+    </div>
+</section>
+
+<style>
+    .wallpaper-card { cursor: pointer; transition: all 0.2s; border: 4px solid transparent; }
+    /* Стиль выделения выбранной карточки */
+    .selected-wallpaper { 
+        border-color: #FFD700 !important;
+        transform: scale(1.03); 
+        box-shadow: 0 5px 15px #FFD700;
+    }
+    .card-link-wrapper { display: block; text-decoration: none; color: inherit; }
+</style>
+
+<script>
+    async function selectWallpaper(element, url) {
+        // 1. Визуально выделяем карточку золотым цветом
+        document.querySelectorAll('.wallpaper-card').forEach(c => c.classList.remove('selected-wallpaper'));
+        element.classList.add('selected-wallpaper');
+
+        // 2. Отправляем запрос на существующий метод в CollectionsController
+        try {
+            await fetch('/Collections/Select', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Важно для [FromBody]
+                },
+                body: JSON.stringify(url) // Передаем чистую строку, как и ждет бэкенд
+            });
+            console.log("Выбор обоев успешно сохранен в коллекции:", url);
+        } catch (error) {
+            console.error('Ошибка при сохранении выбора обоев:', error);
+        }
+    }
+</script>
+

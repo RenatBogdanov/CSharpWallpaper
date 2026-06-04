@@ -1,0 +1,180 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Установка обоев";
+}
+
+<div class="container text-center" style="margin-top: 50px;">
+    <div class="row">
+        <!-- Левая колонка -->
+        <div class="col-md-6 mb-4">
+            <div class="preview-card" style="border: 3px solid #6F5B42;">
+                <div class="preview-image-wrapper">
+                    <img src="/Installing/GetCurrentWallpaperImage"
+                         alt="Текущие обои"
+                         onerror="this.src='https://placehold.co/600x400/B5A892/15160A?text=No+Image'" />
+                </div>
+                <div class="preview-card-content">
+                    <h4 class="preview-card-title">Текущие обои</h4>
+                    <p class="preview-card-text">Путь в системе:</p>
+                    <p class="preview-card-path">@ViewBag.CurrentWallpaperPath</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка -->
+        <div class="col-md-6 mb-4">
+            <!-- Контейнер с выбранной картинкой (по умолчанию скрыт, если бэкенд вернул пустой путь или строку "none") -->
+            <div id="wallpaperCardContainer" class="preview-card" style="border: 3px solid #FFD700; display: @(ViewBag.ImageUrl != null && ViewBag.ImageUrl != "none" ? "block" : "none");">
+                <div class="preview-image-wrapper">
+                    <img src="@ViewBag.ImageUrl"
+                         id="wallpaperPreview"
+                         alt="Новые обои"
+                         onerror="showCubeFallback()" />
+                </div>
+                <div class="preview-card-content">
+                    <h4 class="preview-card-title">Выбранные обои</h4>
+                    <p class="preview-card-text">Готовы к установке на рабочий стол</p>
+                    <button id="setBtn" class="btn btn-primary btn-lg w-100" onclick="setWallpaper('@ViewBag.ImageUrl')">
+                        Подтвердить замену
+                    </button>
+                </div>
+            </div>
+
+            <!-- Контейнер с вращающимся 3D-кубом (отображается, если картинки нет или ссылка сломалась) -->
+            <div id="cubeContainer" class="preview-placeholder" style="display: @(ViewBag.ImageUrl != null && ViewBag.ImageUrl != "none" ? "none" : "flex");">
+                <div class="cube-wrapper">
+                    <div class="cube">
+                        <div class="face front"></div>
+                        <div class="face back"></div>
+                        <div class="face right"></div>
+                        <div class="face left"></div>
+                        <div class="face top"></div>
+                        <div class="face bottom"></div>
+                    </div>
+                    <p class="placeholder-text mt-4">Картинка не выбрана</p>
+                    <p class="placeholder-subtext">Вернитесь на главную страницу для выбора обоев</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Стили для интеграции 3D-сцены в структуру плейсхолдера */
+    .preview-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+        background: #B5A892;
+        border-radius: 8px;
+        border: 3px dashed #6F5B42;
+        padding: 20px;
+    }
+
+    .cube-wrapper {
+        perspective: 400px;
+        perspective-origin: 50% 50%;
+        text-align: center;
+    }
+
+
+    .cube {
+        width: 100px;
+        height: 100px;
+        position: relative;
+        transform-style: preserve-3d;
+        animation: rotateCube 8s infinite linear;
+        margin: 30px auto;
+    }
+
+    .face {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        border: 2px solid #FFD700; /* Золотой каркас куба под стиль карточки */
+        background: #D2D2D1;
+    }
+
+    /* Настройка граней в 3D пространстве */
+    .front {
+        transform: translateZ(50px);
+    }
+
+    .back {
+        transform: rotateY(180deg) translateZ(50px);
+    }
+
+    .right {
+        transform: rotateY(90deg) translateZ(50px);
+    }
+
+    .left {
+        transform: rotateY(-90deg) translateZ(50px);
+    }
+
+    .top {
+        transform: rotateX(90deg) translateZ(50px);
+    }
+
+    .bottom {
+        transform: rotateX(-90deg) translateZ(50px);
+    }
+
+    /* Экранированная Razor-анимация вращения куба */
+    @@keyframes rotateCube {
+        0% {
+            transform: rotateX(0deg) rotateY(0deg);
+        }
+
+        100% {
+            transform: rotateX(360deg) rotateY(360deg);
+        }
+    }
+
+    .placeholder-text {
+        color: #6F5B42;
+        font-size: 1.25rem;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    .placeholder-subtext {
+        color: #6F5B42;
+        font-size: 0.9rem;
+    }
+</style>
+
+<script>
+    // Резервный сценарий: если картинка не загрузилась (битый url), динамически включаем куб
+    function showCubeFallback() {
+        document.getElementById('wallpaperCardContainer').style.display = 'none';
+        document.getElementById('cubeContainer').style.display = 'flex';
+    }
+
+    async function setWallpaper(url) {
+        const btn = document.getElementById('setBtn');
+        const oldText = btn.innerText;
+
+        btn.disabled = true;
+        btn.innerText = "Установка...";
+
+        try {
+            const response = await fetch('/Installing/Set?imageUrl=' + encodeURIComponent(url), {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                alert("Обои успешно установлены!");
+                location.reload();
+            } else {
+                alert("Ошибка при установке. Убедитесь, что файл существует в папке wwwroot.");
+            }
+        } catch (error) {
+            alert("Произошла ошибка при отправке запроса.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = oldText;
+        }
+    }
+</script>
