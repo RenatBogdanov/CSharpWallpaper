@@ -11,11 +11,11 @@
     <div class="cards-grid">
         @foreach (var card in Model.SimpleCards)
         {
-                    <div class="card wallpaper-card" onclick="selectWallpaper(this, '@card.ImageUrl')">
-                        <div class="card-image-wrapper">
-                            <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
-                        </div>
-                    </div>
+            <div class="card wallpaper-card" onclick="selectWallpaper(this, '@card.ImageUrl')">
+                <div class="card-image-wrapper">
+                    <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" loading="lazy" />
+                </div>
+            </div>
         }
     </div>
 </section>
@@ -25,17 +25,17 @@
     <div class="cards-grid">
         @foreach (var card in Model.ImageTextCards)
         {
-                    <div class="card">
-                        <a href="@card.ClickUrl" class="card-link-wrapper">
-                            <div class="card-image-wrapper">
-                                <img src="@card.ImageUrl" alt="@card.Title" class="card-image" />
-                            </div>
-                            <div class="card-content text-center">
-                                <h3 class="card-title">@card.Title</h3>
-                                <p class="card-description">@card.Description</p>
-                            </div>
-                        </a>
+            <div class="card">
+                <a href="@card.ClickUrl" class="card-link-wrapper">
+                    <div class="card-image-wrapper">
+                        <img src="@card.ImageUrl" alt="@card.Title" class="card-image" loading="lazy" />
                     </div>
+                    <div class="card-content text-center">
+                        <h3 class="card-title">@card.Title</h3>
+                        <p class="card-description">@card.Description</p>
+                    </div>
+                </a>
+            </div>
         }
     </div>
 </section>

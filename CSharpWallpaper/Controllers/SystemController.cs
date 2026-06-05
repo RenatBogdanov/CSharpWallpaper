@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace CSharpWallpaper.Controllers
 {
-    // Этот атрибут говорит, что для внешнего мира контроллер всё еще называется Installing
-    [Route("Installing")] // Базовый путь для всех методов в этом контроллере
+    // Этот атрибут говорит, что для внешнего мира контроллер все еще называется Installing
+    [Route("Installing")]
     public class SystemController(
     IWallpaperService wallpaperService,
     IFileSyncService fileSyncService) : Controller
@@ -32,17 +32,14 @@ namespace CSharpWallpaper.Controllers
             }
 
             ViewBag.CurrentWallpaperPath = wallpaperService.GetCurrentWallpaperPath();
-
-            // Указываем путь к View явно, чтобы исключить любые ошибки поиска
             return View("Installing");
         }
 
-        // Для остальных методов оставляем как было, 
-        // они будут доступны по /Installing/Set, /Installing/FillDb и т.д.
+
+        // Доступны по /Installing/Set, /Installing/FillDb и т.д.
         [HttpPost("Set")]
         public IActionResult SetWallpaper([FromQuery] string imageUrl)
         {
-            // Используем сервис, который мы починили (со слешами теперь всё будет ок)
             var success = wallpaperService.SetWallpaper(imageUrl);
 
             if (success) return Ok(new { success = true });

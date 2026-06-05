@@ -14,7 +14,6 @@ namespace CSharpWallpaper.Services
     {
         public async Task<(int Added, int Deleted)> SyncWallpapers()
         {
-            // Используем IWebHostEnvironment для правильного пути к wwwroot
             string rootPath = Path.Combine(env.WebRootPath, "images", "wallpapers");
             if (!Directory.Exists(rootPath)) return (0, 0);
 
@@ -30,7 +29,6 @@ namespace CSharpWallpaper.Services
                 foreach (var filePath in Directory.GetFiles(dir))
                 {
                     var fileName = Path.GetFileName(filePath);
-                    // Веб-пути всегда должны использовать прямой слеш '/'
                     var webPath = $"/images/wallpapers/{categoryName}/{fileName}";
                     diskPaths.Add(webPath);
 

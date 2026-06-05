@@ -22,7 +22,7 @@
                 <div class="card">
                     <a href="@card.ClickUrl" style="text-decoration: none; color: inherit;">
                         <div class="card-image-wrapper">
-                            <img src="@card.ImageUrl" alt="@card.Title" class="card-image" />
+                            <img src="@card.ImageUrl" alt="@card.Title" class="card-image" loading="lazy" />
                         </div>
                         <div class="card-content">
                             <h3 class="card-title">@card.Title</h3>
@@ -47,7 +47,7 @@
                      onclick="selectWallpaper(this, '@card.ImageUrl')"
                      style="cursor: pointer;">
                     <div class="card-image-wrapper">
-                        <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" />
+                        <img src="@card.ImageUrl" alt="@card.AltText" class="card-image" loading="lazy" />
                     </div>
                 </div>
             }

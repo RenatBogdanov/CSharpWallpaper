@@ -22,7 +22,7 @@ namespace CSharpWallpaper.Services
         public async Task<WallpaperCollectionViewModel> GetMainPageModelAsync()
         {
             // Секция 1: 12 случайных карточек. 
-            // EF.Functions.Random() заставляет SQLite сортировать случайно на уровне БД!
+            // EF.Functions.Random() заставляет SQLite сортировать случайно на уровне БД
             var randomCards = await context.Wallpapers
                 .OrderBy(w => EF.Functions.Random())
                 .Take(12)
@@ -37,10 +37,11 @@ namespace CSharpWallpaper.Services
             // Секция 2: Уникальные категории
             // Получаем только уникальные имена категорий из БД, чтобы не грузить всю таблицу
             var categories = await context.Wallpapers
-                .Select(w => w.Category)
-                .Distinct()
-                .Take(4)
-                .ToListAsync();
+            .Select(w => w.Category)
+            .Distinct()
+            .OrderBy(c => EF.Functions.Random())  // Рандомизация категорий
+            .Take(4)
+            .ToListAsync();
 
             var imageTextCards = categories.Select(cat => new ImageTextCardViewModel
             {
@@ -120,12 +121,9 @@ namespace CSharpWallpaper.Services
             var finalUrl = imageUrl ?? GetSelectedWallpaper();
             if (string.IsNullOrEmpty(finalUrl)) return false;
 
-            // ИСПРАВЛЕНИЕ БАГА СО СЛЕШАМИ:
-            // 1. Заменяем все веб-слеши (/) на системные (в Windows это \)
-            // 2. Убираем первый слеш, чтобы Path.Combine не воспринял это как корень диска
+            // Заменяем все веб-слеши (/) на системные (в Windows это \)
+            // Убираем первый слеш, чтобы Path.Combine не воспринял это как корень диска
             string normalizedPath = finalUrl.Replace('/', Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
-
-            // 3. Формируем абсолютный путь к файлу через IWebHostEnvironment
             string fullPath = Path.GetFullPath(Path.Combine(env.WebRootPath, normalizedPath));
 
             if (File.Exists(fullPath))

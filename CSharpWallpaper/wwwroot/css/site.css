@@ -25,16 +25,22 @@ html {
 /*Желтый #FFD700*/
 
 body {
+    padding-top: 80px; /* Отступ сверху для фиксированного меню */
     margin-bottom: 60px;
     background-color: #D2D2D1; /*Белый*/
 }
 
 .navbar {
     min-height: 60px; /* Высота панели */
-    position: relative;
+    position: fixed !important; /* Зафиксировали */
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000 !important;
     overflow: visible !important;
     padding: 0 !important;
     background-color: #B5A892 !important; /*СветлоСерый*/
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 footer {
@@ -113,7 +119,7 @@ text {
         }
 }
 
-/* === Сетка для колекций === */
+/* Сетка для колекций */
 .collections-grid {
     display: grid;
     gap: 20px;
@@ -244,9 +250,9 @@ text {
     height: 100%;
 }
 
-    .card-link:hover {
-        text-decoration: none;
-    }
+.card-link:hover {
+    text-decoration: none;
+}    
 
 /* Адаптивность */
 @media (max-width: 768px) {
@@ -352,25 +358,24 @@ text {
 
 /* Карточка превью */
 .preview-card {
-    background: #B5A892;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #B5A892 0%, #BEBBB4 100%);
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     transition: all 0.3s ease;
-    height: 100%;
     display: flex;
     flex-direction: column;
+    border: 3px solid transparent;
 }
 
 .preview-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
 }
 
-/* Обертка изображения */
 .preview-image-wrapper {
     width: 100%;
-    height: 350px; /* Увеличили высоту */
+    height: 220px;
     overflow: hidden;
     position: relative;
     background: #D2D2D1;
@@ -385,46 +390,110 @@ text {
 }
 
 .preview-card:hover .preview-image-wrapper img {
-    transform: scale(1.03);
+    transform: scale(1.05);
 }
 
 /* Контент карточки */
 .preview-card-content {
-    padding: 20px;
-    flex-grow: 1;
+    padding: 12px 15px;
+    flex-grow: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
 }
 
+/* Заголовок */
 .preview-card-title {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #15160A;
-    margin: 0 0 10px 0;
-    text-align: center;
-}
-
-.preview-card-text {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
+    font-weight: 700;
     color: #15160A;
     margin: 0;
-    line-height: 1.5;
     text-align: center;
 }
 
-.preview-card-path {
+/* Текст */
+.preview-card-text {
     font-size: 0.85rem;
     color: #6F5B42;
-    margin-top: 8px;
-    opacity: 0.8;
-    word-break: break-all;
+    margin: 0;
+    line-height: 1.4;
     text-align: center;
+}
+
+/* Путь при установке */
+.preview-card-path {
+    font-size: 0.75rem;
+    color: #15160A;
+    opacity: 0.7;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 10px 12px;
+    border-radius: 6px;
+    text-align: center;
+    font-family: 'Consolas', monospace;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    cursor: help;
+    word-break: break-all;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Максимум 3 строки */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 44px;
+}}
+
+/* По умолчанию показываем полный путь */
+.full-path {
+    display: block;
+}
+
+.short-path {
+    display: none;
+}
+
+.btn-install {
+    background: linear-gradient(135deg, #FFD700 0%, #e6c200 100%);
+    border: none;
+    color: #15160A;
+    font-weight: 700;
+    font-size: 14px; 
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+    margin-top: 0;
+    width: 100%;
+}
+
+.btn-install:hover {
+    background: linear-gradient(135deg, #e6c200 0%, #ccad00 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+    color: #15160A;
+}
+
+.btn-install:active {
+    transform: translateY(0);
+}
+
+/* Иконки для заголовков */
+.preview-card-title::before {
+    content: "🖼️";
+    margin-right: 8px;
+}
+
+.preview-card.border-selected .preview-card-title::before {
+    content: "✨";
 }
 
 /* Кнопка */
-.preview-card .btn {
-    margin-top: auto;
+.preview-card .btn:not(.btn-install) {
+    margin-top: 0px;
 }
 
 /* Заглушка для правой колонки */
@@ -436,7 +505,7 @@ text {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 450px; /* Соответствует высоте карточки с картинкой */
+    min-height: 450px;
 }
 
 .placeholder-content {
@@ -462,14 +531,38 @@ text {
     color: #6F5B42;
 }
 
+/* Коричневая рамка для левой карточки */
+.preview-card.border-current {
+    border-color: #6F5B42 !important; /* Коричневый */
+}
+
 /* Полный экран (>=1600px) */
 @media (min-width: 1600px) {
+    .preview-card.border-current .preview-card-path {
+        height: 44px;
+        padding: 6px 10px;
+    }
+
+    .preview-card.border-current .path-spacer {
+        height: 32px;
+    }
+
     .preview-image-wrapper {
         height: 350px;
     }
 
     .preview-placeholder {
         min-height: 470px;
+    }
+
+    .border-current .preview-card-path {
+        height: 47px !important;
+        min-height: 47px !important;
+        padding: 8px 10px !important;
+    }
+
+    .border-current .path-spacer {
+        height: 32px !important;
     }
 }
 
@@ -496,7 +589,7 @@ text {
 /* Половина экрана (768px - 1199px) */
 @media (min-width: 768px) and (max-width: 1199px) {
     .preview-image-wrapper {
-        height: 180px; /* Увеличили с 140px */
+        height: 180px;
     }
 
     .preview-card-content {
@@ -510,10 +603,6 @@ text {
 
     .preview-card-text {
         font-size: 0.85rem;
-    }
-
-    .preview-card-path {
-        font-size: 0.75rem;
     }
 
     .preview-placeholder {
@@ -531,6 +620,29 @@ text {
 
     .placeholder-subtext {
         font-size: 0.85rem;
+    }
+
+    .full-path {
+        display: none;
+    }
+
+    .short-path {
+        display: block;
+        font-weight: 600;
+    }
+
+    .preview-card.border-current .preview-card-path {
+        height: 44px;
+        padding: 8px 10px;
+    }
+
+    .preview-card.border-current .path-spacer {
+        height: 0px;
+    }
+
+    .preview-card-path {
+        min-height: 48px;
+        -webkit-line-clamp: 1; /* Одна строка */
     }
 }
 
@@ -553,7 +665,7 @@ text {
 }
 
 .btn-primary:hover {
-    color: #FFFFFF !important;           /* Белый текст при наведении */
+    color: #FFFFFF !important; /* Белый текст при наведении */
     background-color: #6F5B42 !important; /* Коричневый фон при наведении */
     border-color: #6F5B42 !important;
 }

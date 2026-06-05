@@ -7,23 +7,25 @@
     <div class="row">
         <!-- Левая колонка -->
         <div class="col-md-6 mb-4">
-            <div class="preview-card" style="border: 3px solid #6F5B42;">
+            <div class="preview-card border-current">
                 <div class="preview-image-wrapper">
-                    <img src="/Installing/GetCurrentWallpaperImage"
-                         alt="Текущие обои"
-                         onerror="this.src='https://placehold.co/600x400/B5A892/15160A?text=No+Image'" />
+                    <img src="/Installing/GetCurrentWallpaperImage" alt="Текущие обои" />
                 </div>
                 <div class="preview-card-content">
                     <h4 class="preview-card-title">Текущие обои</h4>
                     <p class="preview-card-text">Путь в системе:</p>
-                    <p class="preview-card-path">@ViewBag.CurrentWallpaperPath</p>
+
+                    <div class="preview-card-path" title="@ViewBag.CurrentWallpaperPath">
+                        <span class="full-path">@(ViewBag.CurrentWallpaperPath ?? "Не определён")</span>
+                        <span class="short-path">@(System.IO.Path.GetFileName(ViewBag.CurrentWallpaperPath) ?? "Не определён")</span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Правая колонка -->
         <div class="col-md-6 mb-4">
-            <!-- Контейнер с выбранной картинкой (по умолчанию скрыт, если бэкенд вернул пустой путь или строку "none") -->
+            <!-- Контейнер с выбранной картинкой -->
             <div id="wallpaperCardContainer" class="preview-card" style="border: 3px solid #FFD700; display: @(ViewBag.ImageUrl != null && ViewBag.ImageUrl != "none" ? "block" : "none");">
                 <div class="preview-image-wrapper">
                     <img src="@ViewBag.ImageUrl"
@@ -60,7 +62,7 @@
 </div>
 
 <style>
-    /* Стили для интеграции 3D-сцены в структуру плейсхолдера */
+    /* Стили для интеграции 3D-сцены */
     .preview-placeholder {
         display: flex;
         align-items: center;
