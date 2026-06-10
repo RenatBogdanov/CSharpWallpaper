@@ -1,4 +1,5 @@
-﻿using CSharpWallpaper.Interfaces;
+﻿using CSharpWallpaper.Data;
+using CSharpWallpaper.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
 using System;
@@ -64,10 +65,14 @@ namespace CSharpWallpaper.Controllers
 
         // Доступно по адресу: /Installing/FillDb
         [HttpGet("FillDb")]
-        public async Task<IActionResult> FillDb()
+        public async Task<IActionResult> FillDb([FromServices] AppDbContext context)
         {
+            // Принудительно создаем файл БД и все таблицы, если их еще нет
+            context.Database.EnsureCreated();
+
             var result = await fileSyncService.SyncWallpapers();
             return Content($"✅ Синхронизация завершена!\nДобавлено: {result.Added}\n🗑 Удалено: {result.Deleted}");
         }
+
     }
 }

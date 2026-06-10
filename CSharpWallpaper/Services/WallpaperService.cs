@@ -21,8 +21,7 @@ namespace CSharpWallpaper.Services
     {
         public async Task<WallpaperCollectionViewModel> GetMainPageModelAsync()
         {
-            // Секция 1: 12 случайных карточек. 
-            // EF.Functions.Random() заставляет SQLite сортировать случайно на уровне БД
+            // Секция 1: 12 случайных карточек (работает отлично)
             var randomCards = await context.Wallpapers
                 .OrderBy(w => EF.Functions.Random())
                 .Take(12)
@@ -34,22 +33,26 @@ namespace CSharpWallpaper.Services
                 })
                 .ToListAsync();
 
-            // Секция 2: Уникальные категории
-            // Получаем только уникальные имена категорий из БД, чтобы не грузить всю таблицу
-            var categories = await context.Wallpapers
-            .Select(w => w.Category)
-            .Distinct()
-            .OrderBy(c => EF.Functions.Random())  // Рандомизация категорий
-            .Take(4)
-            .ToListAsync();
+            // Секция 2: Уникальные категории ОДНИМ запросом к БД
+            // Группируем по категории и сразу берем первую картинку для каждой группы прямо в SQL
+            var categoryData = await context.Wallpapers
+                .GroupBy(w => w.Category)
+                .Select(g => new
+                {
+                    Category = g.Key,
+                    ImageUrl = g.Select(w => w.ImageUrl).FirstOrDefault()
+                })
+                .OrderBy(c => EF.Functions.Random()) // Рандомизируем уже сгруппированные категории
+                .Take(4)
+                .ToListAsync();
 
-            var imageTextCards = categories.Select(cat => new ImageTextCardViewModel
+            // Формируем ViewModel в памяти без лишних обращений к context
+            var imageTextCards = categoryData.Select(c => new ImageTextCardViewModel
             {
-                // Берем первую попавшуюся картинку для обложки категории
-                ImageUrl = context.Wallpapers.FirstOrDefault(w => w.Category == cat)?.ImageUrl,
-                Title = cat ?? "Общие",
-                Description = $"Смотреть коллекцию {cat}",
-                ClickUrl = $"/Collections?category={cat}"
+                ImageUrl = c.ImageUrl,
+                Title = c.Category ?? "Общие",
+                Description = $"Смотреть коллекцию {c.Category}",
+                ClickUrl = $"/Collections?category={c.Category}"
             }).ToList();
 
             return new WallpaperCollectionViewModel
@@ -61,17 +64,22 @@ namespace CSharpWallpaper.Services
 
         public async Task<WallpaperCollectionViewModel> GetCategoriesModelAsync()
         {
-            var categories = await context.Wallpapers
-                .Select(w => w.Category)
-                .Distinct()
+            // Точно так же оптимизируем страницу всех категорий
+            var categoryData = await context.Wallpapers
+                .GroupBy(w => w.Category)
+                .Select(g => new
+                {
+                    Category = g.Key,
+                    ImageUrl = g.Select(w => w.ImageUrl).FirstOrDefault()
+                })
                 .ToListAsync();
 
-            var imageTextCards = categories.Select(cat => new ImageTextCardViewModel
+            var imageTextCards = categoryData.Select(c => new ImageTextCardViewModel
             {
-                ImageUrl = context.Wallpapers.FirstOrDefault(w => w.Category == cat)?.ImageUrl,
-                Title = cat ?? "Общие",
-                Description = $"Смотреть обои из папки {cat}",
-                ClickUrl = $"/Collections?category={cat}"
+                ImageUrl = c.ImageUrl,
+                Title = c.Category ?? "Общие",
+                Description = $"Смотреть обои из папки {c.Category}",
+                ClickUrl = $"/Collections?category={c.Category}"
             }).ToList();
 
             return new WallpaperCollectionViewModel
@@ -79,6 +87,7 @@ namespace CSharpWallpaper.Services
                 ImageTextCards = imageTextCards
             };
         }
+
 
         public async Task<WallpaperCollectionViewModel> GetCategoryItemsModelAsync(string category)
         {
