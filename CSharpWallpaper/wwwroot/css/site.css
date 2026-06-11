@@ -444,7 +444,7 @@ text {
     overflow: hidden;
     text-overflow: ellipsis;
     min-height: 44px;
-}}
+}
 
 /* По умолчанию показываем полный путь */
 .full-path {
@@ -689,3 +689,28 @@ text {
 }
 
 
+/* Растягиваем страницу на 100% высоты окна браузера */
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+    /* Находим главный контейнер с контентом сайта 
+   (div с классом container, который идет после шапки) */
+    body > div.container {
+        flex: 1 0 auto;
+    }
+
+/* Сбрасываем дефолтный absolute от Bootstrap 
+   и делаем футер полноценным флекс-элементом */
+footer.footer {
+    position: static !important;
+    width: 100%;
+    flex-shrink: 0;
+    margin-top: auto; /* Выталкивает футер в самый низ, если контента мало */
+}
